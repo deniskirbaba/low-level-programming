@@ -1,0 +1,742 @@
+#+INCLUDE: "common/org-header.org" 
+#+TITLE:  Лекция 1. Основы архитектуры вычислительных систем
+
+  #+BEGIN_COMMENT
+    
+  In this course we are studying programming languages, mostly low-level, in the context of complex computer systems. We start by introducing the notion of systems, computer systems and why is the system approach important for programmers and computer engineers alike.
+
+  Note that this is not a course in systems theory so a lot of concepts can be expanded or made more precise.
+
+  There are two main sources of information for this course:
+    
+  - The systemic aspect is well described in the book "Principles of Computer System Design: an Introduction". It is used in MIT to teach a two-semester course in computer systems.
+  - The programming aspect is described in the book "Low-level programming; C, Assembly and Program Execution".
+
+    
+  #+END_COMMENT
+  -----
+
+* Материалы лекции
+  :PROPERTIES: 
+  :UNNUMBERED: t
+  :END:
+  
+    #+BEGIN_COMMENT
+    In every part I will provide references to external sources. You can pass the course without studying them, but I encourage you to read them because they extend the course and place it in a broader context.
+
+    For today's part the references are as follows:
+    
+    #+END_COMMENT
+    
+  - "Low-level programming": глава 1 целиком.
+  - "Principles of Computer System Design: an Introduction":
+    - Глава 1 "Systems" целиком стр. 2--41.
+    - Глава 2, "§2.1 The Three Fundamental Abstractions" стр. 45--59.
+
+  -----
+
+* Системы
+
+# <
+  - *Система* это набор связанных компонентов, обладающий свойствами, которыми компоненты не обладают по отдельности.
+
+** Примеры
+   - Автомобиль :: на запчастях нельзя ездить, но на автомобиле можно.
+   - Человек :: отдельные клетки неразумны, человек разумен.
+   - Компьютер :: на процессоре нельзя вычислять, на системном блоке можно.
+# >
+     #+BEGIN_COMMENT
+
+     In this course we are interested in a particular kind of computer systems. To provide context, let us start by giving a precise definition of a system in general, not necessary a computer system.
+
+     What is a system? The most generic definition would be: a collection of interacting components.
+
+     The defining characteristic of systems is that interactions between their components result in new properties of the system as a whole; we call such properties /systemic/ or /emergent/. 
+
+     For example, a car has a systemic property: it can carry people and objects around. None of its part can transport you like the car does. Moreover, when the car is fully assembled but its engine is shut down, the car stays in place and is unable to move. That is because only the interaction between the parts of a car allows it to move, providing us with a useful functionality.
+
+     A living *human* is different from a dead corpse. Our cells are interacting to enable us to walk, think, breathe and, generally, making us alive and sentient. These are our systemic properties.
+
+     A *computer* can not perform any work unless powered up and turned on. The ability to perform computations are its systemic property, born from interactions of software and CPU, memory, storage, buses and other hardware components.
+         
+     People often say: "a system is more than a sum of its parts". A system is a sum of its parts and also interactions between them.
+    
+     #+END_COMMENT
+   
+   -----
+
+** Окружение, над- и подсистемы
+# <
+   - Система работает в /окружении/.
+     - Машина взаимодействует с объектами вокруг себя и водителем.
+# >
+       #+BEGIN_COMMENT
+       Every system exists in an /environment/. For example, a car interacts with the driver and road, the trees around it, other cars. Humans interact with other humans, with sounds and visuals, with the air that we breathe and the food that we eat. A computer interacts with other devices, with human through screens, keyboards and other interfaces and so on.
+       #+END_COMMENT
+
+# <
+   - Система может быть частью большей системы.
+     - Бортовой компьютер это часть машины, но и он состоит из подсистем.
+       # >
+       #+BEGIN_COMMENT
+       Generally speaking, an environment consists of everything of interest placed around the system: noises, sources of information, objects the system may be interacting with, other systems, or a parent super-system, of which our system of interest is a part. The environment usually includes an organized part and a chaotic part.
+
+       Note that the environment only includes such objects that can potentially interact with the system. It it not useful to include in the car's environment blue whales, sound waves, bacteria or asteroids.
+
+       #+END_COMMENT
+
+     # <
+   - Любая система связана с окружением через /интерфейс/.
+     - Руль, рычаги, переключатели, колёса...
+      # >
+       #+BEGIN_COMMENT
+       Interactions with systems happen through their /interface/. For a car its controls, as well as its wheels are parts of interface. For us, humans, our eyes, ears, skin are parts of our interface.
+       The interface can vary depending on the system's function: if we consider a verbal conversation between two humans, their interface is a spoken word; however, when these humans are dancing together, the interfacing happens through visual contact and touch.
+
+       The notion of interface is closely related to the border between system and its environment. The borders of a system are usually blurred. We can postulate that the border consists of such parts of the system that can be attributed to either the system itself or its environment.
+       #+END_COMMENT
+
+
+   -----
+
+** Вычислительные системы
+   # <
+   В *вычислительных* системах мы через интерфейс *наблюдаем* процессы внутри и *интерпретируем результаты* --- так и происходят вычисления.
+
+# >
+   #+BEGIN_COMMENT
+
+   We understand what systems are now. But what are computer systems? We are not studying cars or human biology after all.
+
+   Here is what makes computer systems distinct --- or not so much. We can peek through their interfaces and observe the processes inside; then we /interpret/ our observations. And this is what constitutes /the computations/ --- our interpretation of what we observe in systems.
+
+   Why did I tell that the computer systems are /not so much distinct/? Because our interpretation is a crucial part of the process. To demonstrate this I will provide some examples of such systems where computations are happening, but not in electric circuits.
+
+   #+END_COMMENT
+*** Природные вычислительные системы
+
+    - random.org :: случайные числа из атмосферного шума;
+
+      #+BEGIN_COMMENT
+      It is a common knowledge that computers are not good with random numbers. Unless they incorporate a specific hardware component to generate randomness, they are unable to achieve true non-determinism, only imitate it through clever mathematical trickery. But random numbers are extremely useful, especially in cryptography.
+
+      There is a service that you can access at random.org. It provides good quality random numbers by using electromagnetic noise from the atmosphere as a seed for the random number generator. Using such numbers in cryptography is much more sane than those generated by a traditional computer.
+
+      We can say that the part of random.org that performs computations is the atmosphere of Earth itself. This may seem quite unorthodox because it comes from the nature, it is not man-made. However observing atmospheric noise and interpreting our observations, then plugging it into a more conventional computer system provides us with numbers with very particular properties. What is it, if not a computing process?
+
+      #+END_COMMENT
+    - звёзды-пульсары :: точно отсчитывают время;
+      #+BEGIN_COMMENT
+      Another example are pulsars. Pulsars are stars at late stages of their life, which are emitting bursts of light with high frequency. They are doing it in a very stable way and thus can be used as clock: we count the bursts and know how many milliseconds have passed. Counting time is also computation.
+      #+END_COMMENT
+
+    - колония муравьёв :: оптимизирует пути до еды;
+    #+BEGIN_COMMENT
+    The third example are ant colonies. Ants are searching for food in a process that can be roughly described as a random walk. As they move, they mark their steps with a scent of pheromones.
+
+    When an ant worker reaches the food or other interesting resource it goes back to the ant colony in exactly the same way, tracing back its steps. Thanks to the smelly footprints it can go back following exactly the same route that led this little ant to food.
+    
+    However its path can be far from optimal: it may contain loops, or it may walk uphill instead of going around. In order to optimize the path the ants use their capacities to recognize stronger and weaker smells and thus get a sense of where the route is going, and which routes are more frequently stepped used by more ants. This knowledge seems enough to be able to shorten the paths substantially.
+
+    So when you put a piece of food in the proximity of ant colony, and when they find it, by observing ants you may get a solution to a problem of finding path from ant colony to the food.
+
+    This is a computation that does not look any different from those performed by computers, and actually ant colonies have inspired some path finding algorithms.
+
+    To sum it up, computations can be performed in a lot of ways, and they are closely tied up with interpretation. Sometimes nature performs computations without computers, and we are saying so because we are interpreting natural processes as computations.
+    #+END_COMMENT
+    
+    -----
+
+** Программы как системы
+  # < 
+   - Выполняющаяся программа --- часть программно-аппаратной системы.
+# >
+    #+BEGIN_COMMENT
+
+    Our main interest in this course is programming. What is the relationship between programming and computer systems?
+
+    When we program, the outcome of our work is a program, more precisely, its source code. It may be executed through interpretation, it may be compiled and then executed in a different form --- it does not matter.
+    #+END_COMMENT
+    # <
+   - Исходный код --- не система.
+    # > 
+    #+BEGIN_COMMENT
+    What matters is that the source code is not a system. Systems are alive, their parts are interacting and new properties emerge from these interactions. Source code is dead. It is like a manual on how to assemble a piece of furniture, addressed to someone who is going to perform the actual work.
+
+    What is our interest in systems then? When we launch program and it is being executed, it becomes a part of a hybrid system incorporating hardware and software parts. It is impossible to understand its behavior without thinking about hardware, and software, and their interaction.
+
+    #+END_COMMENT
+
+
+    #+ATTR_HTML: :border 0 :frame none :rules none
+    | Исходный код                | Программа                 |
+    |-----------------------------+---------------------------|
+    | чертёж самолёта             | летящий самолёт           |
+    | инструкция по сборке мебели | сборщик в процессе работы |
+    
+    
+    #+BEGIN_COMMENT
+    If we draw an analogy between, on one hand, the source code and the program being executed, and something else, then the source code relates to the running program as a manual on how to assemble a piece of furniture relates to a system of furniture assembler, instruction manual and furniture parts; this system is performing work on assembling the furniture.
+
+    #+END_COMMENT
+
+    -----
+** Декомпозиция систем
+    # <
+   Как минимум два /разных/ способа разделить систему на части:
+   - Структурный :: из чего собрана?
+# >
+     
+      #+BEGIN_COMMENT
+      Now we want to elaborate how to identify the parts that constitute a system. Given a system, possibly very complex, how to decompose it in parts? It is not an easy question to answer: there are several ways on decomposing a system.
+
+      The first, and most obvious way, is to decompose the system spatially. When a system is built from parts like a house is built of bricks, we are talking about its structural decomposition; the system is a whole, and the smaller pieces are its parts.
+      #+END_COMMENT
+      
+# <
+   - Функциональный :: какая часть реализует какую функцию?
+# >
+      #+BEGIN_COMMENT
+      The second, and more useful way, is to decompose the system functionally. What does each part of system do? This is not the same as structurally decomposing system, because we only care about the functionality, the roles of parts of the system.
+      #+END_COMMENT
+      
+*** Пример: ножницы
+
+      #+BEGIN_COMMENT
+      Take scissors as an example of a system. It is able to cut paper better than a simple knife because of its systemic properties.
+      #+END_COMMENT
+     # < 
+    - три структурные: два куска металла и винт.
+# >
+
+      #+BEGIN_COMMENT
+      Structurally scissors are composed of two pieces of metal and a screw that connects them together. 
+      #+END_COMMENT
+  # <    
+    - две функциональные части: держатели и режущая;
+    # >  
+      #+BEGIN_COMMENT
+      Functionally, the same scissors consist of two parts: one is used to hold them, whereas another cuts paper. Not only do scissors have more structural parts than functional, we can not map structural parts to functional parts.
+
+      In a way, functional parts are /roles/ that people play. Consider a system consisting of people working on the same project. Structurally, every person is a part of such system. Functionally, the parts of this system are /roles/: programmers, designers, managers, testers etc. One of the differences between them is that one person can play several roles (e.g. be a programmer and project manager, or programmer and graphics designer).
+
+      Functional way of viewing systems is considered much more efficient for engineering computer systems including programs. It emphasizes the important aspect --- functionality.
+      #+END_COMMENT
+    -----
+
+*** Курсор
+   # < 
+    /Курсор/ --- функциональный компонент.
+
+    Может быть мышь, планшет --- или программа, управляющая курсором.
+   # > 
+    #+BEGIN_COMMENT
+    To get accustomed to structural and functional decompositions let us study some examples: this time, from computer systems and programming.
+
+    The first example is a cursor; we all see it constantly on computer screen as we point at things, drag them or otherwise interact with them.
+    
+    Cursor is a functional component, not a structural one. It is not equivalent to mouse, graphical tablet or any other device: a program can take control over the cursor and move it around.
+      
+    #+END_COMMENT
+    -----
+
+*** Виртуальная память
+# <
+    - Существуют ли адреса, которые не соответствуют физической памяти?
+   # >   
+      #+BEGIN_COMMENT
+
+      A lot of programs are being executed simultaneously on your computer. They coexist and are isolated from one another through virtual memory.
+
+      Consider virtual memory. Is it a structural part of computer system or a functional one?
+
+      The function of virtual memory is to store data. The virtual memory space itself consists of areas of forbidden addresses, files, mapped from hard drive, anonymous pages and so on. The virtual memory is backed by the physical memory, storage (in case of memory swapping or mapping files) and operating system, which ensures transparent operation with it.
+      
+      It does not seem possible to divide computer system into structural parts in a way that isolates one virtual memory space from all others, so it is not a structural component.
+      #+END_COMMENT
+    -----
+*** Процесс
+# <
+    - В помощь: можно ли разделить систему в пространстве так, чтобы один процесс был отделён ото всех остальных?
+# >
+      #+BEGIN_COMMENT
+      Another example is a process --- we have all seen a list of processes in a task manager. A similar argument is applicable to it: we can not divide computer on parts structurally to isolate one process. A process contains a virtual address space too, parts of which are shared among processes. So a process is also a functional component.
+      #+END_COMMENT
+    -----
+    
+*** Хранилище
+# <
+    - ramfs;
+    - распределённые файловые системы.
+  # >  
+      #+BEGIN_COMMENT
+      The final example is a storage  --- its name alone suggests its function and hence that it is a functional component. It can be implemented as a piece of hardware, but the data can be stored in a distributed filesystem, in a distributed database, in cloud. In cloud storage it is not clear where a specific piece of data is stored due to factors like replication blurring it. Generally speaking, storage is a functional component.
+      #+END_COMMENT
+    -----
+    
+**  Сложность систем
+
+
+      #+BEGIN_COMMENT
+      Now we know what computer systems are, we have studied how to decompose them into parts in a structural or functional way; we have provided some examples of their functional components.
+      
+      Modern computer systems have a lot of components both structurally and functionally; it suggests that they are /complex/. But what is the complexity we are talking about here? And what is complexity at all?
+
+      #+END_COMMENT 
+   Сложность это главная проблема при создании систем.
+      #+BEGIN_COMMENT
+      There are different approaches to defining complexity, and some work better depending on the system.
+      #+END_COMMENT
+      
+      
+   1. Как сложно описать систему? Иногда измеряется в битах.
+
+      #+BEGIN_COMMENT
+      In the first approach we consider a system to be complex when it is difficult to describe. As an example, imagine we describe the system through programming and we have fixed a programming language to do that. Then a measure called Kolmogorov complexity shows the minimal length of a computer program that can possibly describe the system.
+      #+END_COMMENT
+      
+       Keywords: Information, entropy, algorithmic complexity, Fisher's
+      information, Renyi's entropy, code length (Hamming, Shennon-Fano),
+      Chernov's information, Lempel-Ziv complexity, Kolmogorov complexity.
+       
+   2. Как сложно создать систему?
+
+      #+BEGIN_COMMENT
+      In the second approach we postulate that a system is complex when it is difficult to create. Creation can be measured in energy or money, but also a working computer system requires performing computations. Systems that require more computations, or more computational resources like memory for temporary data, are then deemed complex.
+
+      A well known way of describing complexity in this manner is using algorithmic, data or communication complexity, usually in asymptotic form. Drawing a parallel with Kolmogorov complexity, there is a measure called logical depth that corresponds to the fastest computer program able to  describe the system.
+      #+END_COMMENT
+      
+      Keywords: Algorithmic space/time complexity, logical depth, termodynamic depth, crypticity.
+
+   3. Насколько система регулярна?
+
+      #+BEGIN_COMMENT
+      In the third approach the system is complex if it is irregular. As an
+      example, imagine a map-reduce engine. Such an engine takes a huge problem
+      and a huge chunk of data. Then it splits the problem into smaller
+      independent subproblems, each using a portion of data. The subproblems are
+      distributed over a number of computational nodes, then the engine
+      aggregates their solutions into the final answer to the huge problem.
+
+      Is this system complex? It may seem huge, and we can have thousands of
+      computing nodes, but all these nodes are the same; they fit the same
+      description. Being able to describe multiple parts of the system in the
+      same way decreases its complexity. Think about it when you plan your
+      programs, because reusing code usually makes them less complex.
+      #+END_COMMENT
+     
+      Keywords: entropy.
+      
+   -----
+
+** Признаки сложной системы
+
+      #+BEGIN_COMMENT
+      While computing an exact metric of complexity is usually impossible, there are some signs that suggest that the system is complex according to one of these metrics.
+      #+END_COMMENT
+      
+   1. Много частей.
+   2. Много связей.
+   3. Много нерегулярностей.
+   4. Большое описание.
+   5. Большая команда работает над системой.
+
+
+   -----
+* Борьба со сложностью
+
+      #+BEGIN_COMMENT
+      So, for practical reasons we need to build computer systems that solve complex problems. But such systems tend to be complex themselves. It makes them harder to build, maintain, and develop. Without a right approach we may not even be able to complete the construction of the system because modifying it will become unbearably difficult. For instance, if all parts are tightly interdependent, modifying one part may produce a ripple effect that would force us to modify all parts that depend on it.
+      #+END_COMMENT
+
+      Эмпирически найдены подходы, которые часто эффективно уменьшают сложность:
+    
+  - Модульность ::  делаем систему по кусочкам, затем собираем как конструктор.
+
+      #+BEGIN_COMMENT
+      Modularity implies that we dissect the system on smaller parts that are easier to digest; then we repeat the dissection until we face simple challenges.
+      We have to be able to develop modules in isolation, without touching other modules.
+      Then we can ascend the hierarchy, building more complex blocks with the modules that we already have.
+      #+END_COMMENT
+    
+  - Абстракция :: забываем устройство модулей, описываем только поведение.
+      #+BEGIN_COMMENT
+      Abstraction goes together with modularity and makes it even more useful. If modularity is just about dissection of system into independent parts, abstraction is about forgetting and simplifying the description of these parts.
+For example, when two programs communicate through Internet, we are
+usually not thinking about how electrical signals pass through wires, and that
+the packets may get corrupted and we have to correct errors in them. This is
+achieved by abstracting the exchanging mechanism so that we get an illusion that getting information from the network is as simple as accessing a local file.
+
+      #+END_COMMENT
+    
+
+  -----
+** Три типа функциональных компонентов
+#+BEGIN_COMMENT
+
+Earlier we have provided examples of computer systems where the computation is performed in an unorthodox way, such as ant colonies. It suggests that in reality we can make computer systems out of virtually anything, and only our creativity is the limit here. However, this is not a very useful statement because we need some guidelines to start exploring the vast chaotic space of possible computer systems.
+
+As diverse as computer systems can be, once we pick a typical computer system
+apart and perform its functional decomposition we will see that its components
+are usually falling into one of three categories.
+   #+END_COMMENT
+   
+        - Память (memory) :: хранение данных.
+        - Исполнитель (interpreter) :: реакция на события, выполнение команд.
+        - Транспорт (communication link) :: связь между компонентами.
+
+        #+BEGIN_COMMENT
+   Before we explain why do we care about these components, let us provide some examples for each of them.
+   #+END_COMMENT
+   -----
+*** Примеры памяти
+#+BEGIN_COMMENT
+Variants of memory may be the easiest to recall. Memory can be implemented in a
+variety of ways, some of which are mostly hardware, others are mixed
+hardware-software solutions.
+
+Here are some examples of memory in computer systems:
+
+#+END_COMMENT
+    - Триггеры
+    - Регистры
+    - Оперативная память
+    - Кэши
+    - Виртуальная память
+    - HDD/SDD
+    - RAID
+    - Базы данных
+    - Файловые системы
+    - Облачное хранилище
+
+    -----
+
+*** Примеры исполнителей
+
+#+BEGIN_COMMENT
+Interpreters are active or reactive components of computer systems.
+
+Here are some examples of interpreters:
+#+END_COMMENT
+
+    - Процессор
+    - Контроллеры
+    - Интерпретаторы и компиляторы
+    - Виртуальные машины
+    - Word
+    - Браузеры
+    - Игры
+
+    -----
+
+*** Примеры транспорта
+
+#+BEGIN_COMMENT
+Finally, communication link connects other components allowing them to interact. Multiple components can be connected; in this case transport has to perform some kind of routing to transport data from sender to a correct receiver.
+
+Here are some examples of communication links:
+#+END_COMMENT
+    - Разные виды кабелей
+    - Wi-Fi
+    - USB
+    - Internet
+    - Telegram
+    - email
+    - socket
+    - pipe
+    - файл-буфер...
+
+    -----
+*  Конструктор вычислительных систем
+
+#+BEGIN_COMMENT
+We care about these three types of functional components. Why? To give you a
+taste, no matter how memory is implemented, be it a database or a hard disk
+drive, there are a number of universal memory characteristics such as atomicity
+of reads and writes, or latency, or coherence between reads and writes. These
+characteristics pose certain challenges, like decreasing memory latency, and
+there are ways of dealing with such problems which are independent from the
+specific memory implementation.
+
+These components also provide us with a useful language to describe computer systems.
+We can represent a system with a needed level of detail as a combination of memories and interpreters connected by transports.
+Remember, though, that this is a /functional decomposition/, not structural
+blocks. There are parts of systems that store data, not hardware modules!
+
+#+END_COMMENT
+
+  Посмотрим на комбинации трёх функциональных компонентов.
+
+** Архитектура фон Неймана
+
+   
+#+INCLUDE: "common/before-image.org" 
+   [[./img/von-neumann-pure.svg]]
+
+#+INCLUDE: "common/after-image.org" 
+    
+#+BEGIN_COMMENT
+If we try to keep the architecture as simple as possible, we will have a combination of exactly  one interpreter and one memory.
+This architecture is known as /von Neumann architecture/.
+In this architecture memory and CPU (that acts as an /interpreter/) have properties that seem trivial to us: for example, instructions and data are binary encoded. In other architectures such properties will not necessary hold.
+#+END_COMMENT
+   -----
+
+** Сеть между двумя компьютерами
+
+   #+BEGIN_COMMENT
+Now imagine two programs that exchange data via network. We can depict this system as follows:
+#+END_COMMENT
+
+#+INCLUDE: "common/before-image.org"
+   [[./img/network.svg]]
+    
+#+INCLUDE: "common/after-image.org"
+   #+BEGIN_COMMENT
+The line connecting two memories is a transport enabling us to send and receive data as if we were copying data between two memories. A lot of details are abstracted away by this transport: the work of operating system, device drivers, network adapter, intermediate nodes, all the protocols from Ethernet, ARP to TCP/IP, resolving IP addresses, finding a route from one computer to another and so on. These details may not be important for us so on a diagram we just draw a straight line between two memories.
+#+END_COMMENT
+# <
+   Транспорт может быть очень сложным: процессы поиска пути для пакетов, повторной посылки потерянных пакетов, несколько уровней протоколов (см. [[https://ru.wikipedia.org/wiki/%D0%A1%D0%B5%D1%82%D0%B5%D0%B2%D0%B0%D1%8F_%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D1%8C_OSI][модель OSI]]).
+   # >
+   -----
+
+#+BEGIN_COMMENT
+Now let us see another configuration consisting of two interpreters and one memory. What can it depict? Some options are:
+#+END_COMMENT
+   - мультипроцессорная система с общей памятью;
+   - несколько потоков в едином процессе;
+   - интерпретатор языка программирования, написанный на другом языке программирования.
+
+#+INCLUDE: "common/before-image.org"
+   [[./img/compiler.svg]]
+
+#+INCLUDE: "common/after-image.org"
+
+#+BEGIN_COMMENT
+It is interesting to think about such schemes and ask questions. The connected components on such schemes can interact, depending on the components the nature of interaction will be different.
+
+Studying all possible types of interactions may reveal potential problems that should be aware of while crafting such systems.
+
+For example, if two threads are sharing the same memory and issue the writes to the same location, which write will be applied first? What if the write is big enough so that it is not atomic, and both writings will be happening at the same time? Can it so happen that the multibyte value written to memory will be a mixture of bytes from two different values coming from different threads?
+
+#+END_COMMENT
+   -----
+
+    
+*  Модель Intel 64
+
+
+** Архитектура фон Неймана
+#+BEGIN_COMMENT
+Now let us give a glimpse on the model of a computer system we will use for this course.
+We are going to grow it from a seed which is a von Neumann architecture with one processor and one memory.
+
+Decades ago early computers mimicked this structure with their hardware blocks,
+but they have soon grown to be much more sophisticated. However, many industrial
+programming languages such as Java, C or JavaScript give us an impression that
+the programs in these languages perceive the computer in the same way. This is
+not a coincidence, and is closely related to a notion of /model of computations/,
+which we will elaborate in our course a bit later.
+
+The von Neumann architecture is where we start to grow our model until
+we reach a sufficient approximation of how a low-level programmer perceives the
+computer.
+#+END_COMMENT
+
+   
+#+INCLUDE: "common/before-image.org" 
+   [[./img/von-neumann-pure.svg]]
+#+INCLUDE: "common/after-image.org" 
+    
+-----
+** Добавление прерываний
+# < 
+   Неинтерактивность: система простаивает при работе с медленными внешними устройствами.
+# >
+
+   [[./img/von-neumann-int.svg]]
+
+
+#+BEGIN_COMMENT
+First, we notice that von Neumann architecture has no connection to the outside world. It is implied that the programmer has somehow an access to memory to change its contents, but the system can not react to the events of outside world.
+
+
+Interrupts allow the computer to change program execution order based on events external to the program itself. After a signal is caught, which can be external or internal, the program execution is suspended, some registers are saved and CPU starts executing a special routine to handle the situation.
+
+Interrupts occur in many situations, for example:
+  - A signal from an external device.
+  - Zero division.
+  - Invalid instruction (when CPU failed to recognize an instruction by its binary representation).
+  - An attempt of executing a privileged instruction in a non-privileged mode.
+
+#+END_COMMENT
+   -----
+
+
+** Архитектура фон Неймана с регистрами
+
+#+INCLUDE: "common/before-image.org" 
+   [[./img/von-neumann-regs.svg]]
+
+#+INCLUDE: "common/after-image.org"
+
+# <
+- Работает благодаря локальности.
+  
+# >
+#+BEGIN_COMMENT
+The data exchange between CPU and memory is a crucial part of computations in a Von Neumann computer. Instructions have to be fetched from memory, operands have to be fetched from memory; some instructions also store results in memory.
+
+This creates a bottleneck and leads to wasted CPU time when it waits for the data response from the memory chip. To avoid constant wait, a processor was equipped with its own memory cells, called registers. These are few but fast.
+Programs are usually written in such a way, that most of the time the working set of memory cells is small enough. This fact suggests that programs can be written so, that most of the time CPU will be working with registers. 
+
+Registers are based on transistors, while main memory uses condensers. We could have implemented main memory on transistors and get a much faster circuit.
+
+There are several reasons for which engineers prefer other ways of speeding up computations.
+
+    - Registers are less cheap.
+    - Instructions encode register's number as parts of their codes. To
+        address more registers the instructions have to grow in size. 
+    - Registers add complexity to the circuits to address them. More
+        complex circuits are harder to speed up. It is not easy to set up
+        a large register file to work on 5 GHz.
+
+Naturally, register usage slows down computer in the worst case. If everything
+has to be fetched into registers before the computations are made and flushed
+into memory afterwards, what's the profit? 
+
+After years of programming people have discovered a property of programs, which happens to be true, an empirical property. 
+It is a result of how programs are typically written, not a law of nature.
+ It is called locality of reference and there are two main types of it: /temporal/ and /spatial/.
+
+- Temporal locality means, that accesses to one address are likely to be close in time. 
+- Spatial locality means, that after accessing an address $X$ the next memory access will likely to be close to $X$, like $X-16$ or $X+28$.
+
+These properties are not binary: you can write a program exhibiting stronger or
+weaker locality. 
+
+Typical programs are using the following pattern: the data working set is small and can be kept inside registers. After fetching the data into registers once we will work with them for quite some time, then the results will be flushed into the memory. The data stored in memory will be rarely used by the program. In case we need to work with this data we will loose performance because:
+
+- We need to fetch data into the registers.
+- If all registers hold data that we still need later on, we will have to spill some of them, i.e. save their contents into temporally allocated memory cells.  
+
+
+        
+#+END_COMMENT
+-----
+
+** Усложнение для повышения эффективности
+
+   - Повышение производительности в среднем и понижение в редком худшем случае.
+
+   #+BEGIN_COMMENT
+Registers provided us a useful insight. They demonstrate a very common situation in engineering: we decrease performance in the worst case to improve it in average. This is a good technique unless we are building real time systems, which impose constraints on the worst system reaction time. Think about a system that controls a power plant. It has to react to all events in a very short time and if it lags and misses the event, the whole system fails.
+
+Real time systems have to always respect a fixed delay between an event and a reaction to it, so decreasing performance in the worst case is unacceptable.
+
+These tricks make systems more complex to use some resource more efficiently. In this case, the resource is CPU. This is also a universal rule.
+
+#+END_COMMENT
+-----
+
+# <
+   Попытка использовать ресурс более эффективно обычно усложняет систему.
+     # >
+#+BEGIN_COMMENT
+Imagine a single-track railroad line running through a long, narrow
+canyon. To improve the utilization of the single track we may allow trains to run both ways at the same time by installing a switch and a short side track in a wide spot about halfway through the canyon.
+Then through careful scheduling we may allow trains pass each other by putting one of them at a side track. However, the train operations are now much more complex than they used to be. If either train is delayed, the schedules of both are disrupted. We also need a control system to prevent possible human mistakes in operating trains.
+And the system has now a new systemic property: the trains have a limit on their length. If two trains are to pass in the middle, at least one of them must be short enough to pull completely onto the side track.
+
+   #+END_COMMENT
+   [[./img/train.svg]]
+-----
+
+** Усложнение
+  # < 
+   Память --- медленная. Регистры, кэш. Медленная внешняя память.
+# >
+   [[./img/von-neumann-complete.svg]]
+
+   #+BEGIN_COMMENT
+   Next step is putting several layers of cache memory between registers and memory. We follow the same principle of putting intermediate memory layers between CPU and memory.
+   Cache is controlled by CPU and is invisible to a programmer; however, we may observe its effects on memory access time. If our programs respect certain rules, for example, favor consecutive memory accesses over random ones, cache is going to speed up their execution. Otherwise we will experience cache misses which result in a lower latency when accessing memory.
+
+   We also connect a huge and slow layer of memory called /storage/. It serves as an archive of data, a large library of data units. In our computers storage is usually a solid state drive (SSD) or a hard disk drive (HDD).
+   #+END_COMMENT
+   
+   -----
+
+
+** Стек
+
+# <
+   - изолировать куски кода в процедурах
+   - сохранять контекст выполнения и потом возвращаться.
+     
+   Аппаратный стек (но в рамках той же линейно адресуемой памяти)
+
+   Стек это функциональный компонент или структурный?
+# >
+
+#+BEGIN_COMMENT
+
+Our programs contain a number of functions calling each other. It is useful to teach our computers to support three features of functions:
+
+- Functions can be called from anywhere.
+- When the function terminates it has to return to the place where it was called.
+- Function has local variables; it is the data that belongs to the called function alone.
+
+Memory has a flat, linear address space, where every byte has an address. It is not very convenient to implement these features. This is why we put a /hardware stack/ on top of main memory. 
+
+Stack in general is a data structure supporting two operations: pushing an element on top of it and popping the topmost element.
+Hardware stack implements this abstraction on top of memory through special instructions and a register =rsp= called /stack pointer/. It stores an address of the topmost stack element. A stack is used not only in computations but to store local
+variables and support functions call sequence in programming languages.
+
+There is no special stack memory in our computers; it means that we can bypass the abstraction of stack and access its elements by their memory addresses.
+
+There is a hardware support for such data structure. It does not mean there is
+also a separate stack memory. It is just sort of an emulation implemented with
+two machine instructions (=push= and =pop=) and a register
+=rsp=. The instructions perform as follows:
+
+- =push argument=
+   - Depending on argument size (2, 4 and 8 bytes are allowed), the =rsp= value is decreased by 2, 4 or 8. 
+   - An argument is stored in memory starting at the address, taken from the modified =rsp=.
+- =pop argument =
+   - The topmost stack element is copied into the register/memory, depending on the argument;
+   - The =rsp= register is increased by the size of its argument.
+
+#+END_COMMENT
+
+   -----
+** Виртуализация, мультизадачность
+
+
+#+BEGIN_COMMENT
+Finally we throw in the multitasking support where the CPU and memory get virtualized, giving every program an illusion that it is the only one using CPU and memory. This isolates programs and prevents error propagation between them by isolating their address spaces. It also prevents program from executing dangerous privileged instructions that only operating system and device drivers should be able to use.
+#+END_COMMENT
+# <
+   - виртуализировать процессор;
+   - изолировать процессы друг от друга;
+   - не позволять выполнять всем опасные инструкции (привилегированный режим).
+# >
+#+INCLUDE: "common/before-image.org"
+
+   [[./img/final-approximation.svg]]
+
+#+INCLUDE: "common/after-image.org"
+   -----
+
+
+* Заключение
+ # < 
+  В следующей лекции концентрируемся на абстракции *исполнитель*, узнаём понятие *модели вычислений* и их примеры.
+
+  - узнаем многое, практически применимое в других языках;
+  - while/if, вызов процедур, объекты и классы ---  капля в океане способов организации вычислений;
+  - есть много специализированных инструментов;
+  - как устроена программа на ассемблере;
+  - как легко сделать самые сложные части первой лабораторной с помощью конечных автоматов.
+ # >

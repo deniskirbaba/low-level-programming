@@ -1,0 +1,562 @@
+#+INCLUDE: "common/org-header.org"
+#+LANGUAGE: en
+#+TITLE: Chapter 6. Virtualization
+
+# <
+* Virtualization
+# >
+
+# [
+First, let us recall why are we having a conversation about clients and services.
+Developers are not perfect and tend to make more mistakes as the complexity of their systems grows, which leads to  errors in systems.
+
+In order to build complex systems we develop each module in isolation and then connect them to other modules through interfaces.
+Errors in one module may propagate to other modules, either through their interfaces or outside them e.g. through corrupting their shared state.
+
+Error propagation is bad for two reasons: 1) it has a huge destructive potential, producing a ripple effect, 2) it makes locating the original error quite hard.
+To limit error propagation we enforce boundaries between modules by some external mechanism that isolates modules, making interactions outside interfaces impossible.
+Virtualization is one of such external mechanisms.
+# ]
+-----
+
+* What is virtualization
+# [
+In clients and services, the ideal situation is having one computer per module, all of them connected by a network.
+This way we may be sure that all interactions happen through the cable.
+# ]
+
+#+INCLUDE: "common/before-image.org"
+#+attr_latex: :width 0.4\textwidth
+#+attr_html: :width 40%
+{{{if-latex-else([[./img/client-service.svg]],)}}}
+#+INCLUDE: "common/after-image.org"
+
+# <
+Ideally each module is a separate computer.
+
+Unrealistic.
+
+Solution: create a virtual computer for each module.
+
+# >
+
+# [
+However, this is an unrealistic scenario.
+So instead of giving each module its own physical computer, let us give them rather a virtual one.
+This will provide each module an isolated execution context.
+# ]
+ 
+-----
+
+** Types of virtualization
+# <
+1) Emulation (one to one)
+
+2) Multiplexing (one to many)
+
+3) Aggregation (many to one)
+   
+# >
+# [
+There are three basic configurations of virtual and real computers:
+   
+1) Emulation (one to one), where a single real computer emulates a single virtual computer, possibly with a different architecture or instruction set.
+
+2) Multiplexing (one to many), where a single physical resource is shared between several virtual computers.
+   These computers get isolated virtual instances of real hardware.
+
+2) Aggregation (many to one), where multiple physical resources are aggregated into a single virtual resource.
+
+These three basic configurations may be combined, for example, when multiple physical computers are used to virtualize a single computer with a different architecture.
+# ]
+  -----    
+** Examples of emulation
+
+# [
+TODO
+
+There are countless emulators of gaming consoles like various types Gameboy or Sega.
+The emulators reconstruct the hardware architecture in software.
+# ]
+# <
+- GameBoy, Sega, PlayStation emulators
+- DosBox
+- Rosetta
+- JVM
+- RAM disk
+- hypervisor
+# >
+-----
+** Examples of multiplexing
+# [
+TODO
+# ]
+# <
+- hypervisor
+- threads
+# >
+
+-----
+** Examples of aggregation
+
+# [
+TODO
+# ]
+# <
+- RAID
+- distributed databases/filesystems
+# >
+-----
+
+
+** Implementation
+
+- First idea: interpretation (possibly coupled with JIT)
+- Less trivial: multiplex the processor, separate memory 
+  
+# [
+But how to implement this idea?
+In this part we will study how to virtualize processor and memory, creating a separate virtual computer for each process and getting some other benefits from it.
+
+The obvious idea is to create is creating an interpreter that will execute programs written for the same or different architecture.
+Then the interpreter, acting like a virtual machine, will be able to isolate programs from one another through checks implemented in the interpreter itself.
+For example, when several programs are executed simultaneously, the interpreter may create separated address spaces for each of them, preventing one program from interacting with another through their common memory.
+
+Language virtual machines such as JVM are taking this approach; often interpretation is combined with Just-in-time compilation.
+
+However, interpreters may be slow; if the host machine, where the interpreter is running, is similar to the virtual machine, there may be more clever and effective ways of virtualizing it.
+We are going to augment the computer system that we are building to effectively virtualize processor and memory for each running program:
+ 
+- The processor will be multiplexed and switch between executing different programs.
+- Memory will contain data of all running programs but they will be isolated each in its own address space, unable to interact directly.
+
+  Virtualization is achieved by adding specific hardware capabilities and instructions, and then exploiting it in the software; this way virtualization becomes an emergent property in the new system.
+# ]
+-----
+
+* Virtualization overview
+# [
+In this part we will make several important assumptions to simplify the explanation.
+# ]
+# <
+Assumptions
+# >
+
+1) Each running program is a process with one thread.
+2) There are exactly two running programs and an operating system.
+# [
+3) The scheduling of program execution is reduced to round-robin, that is, the computer switches between two applications giving a single application two consecutive timeslices:
+# ]
+# <
+3) Simple round-robin:
+# >  
+   Program 1 --- Program 2 --- Program 1 --- Program 2 ...
+
+# [
+Recall what a von Neumann architecture looks like.
+#+INCLUDE: "common/before-image.org"
+#+attr_latex: :width 0.4\textwidth
+#+attr_html: :width 40%
+{{{if-latex-else([[./img/von-neumann-regs.svg]],)}}}
+#+INCLUDE: "common/after-image.org"
+# ]
+
+# <
+#+BEGIN_EXPORT md
+<p align='center'> <img width='50%'  src='./img/von-neumann-regs.svg' /> </p>
+#+END_EXPORT
+# >
+# [
+Our goal is to build a system where each program runs on its own virtual von Neumann machine.
+For three programs it will look as follows:
+# ]
+# [
+#+INCLUDE: "common/before-image.org"
+#+attr_latex: :width 0.8\textwidth
+#+attr_html: :width 80%
+{{{if-latex-else([[./img/final-approximation.svg]],)}}}
+#+INCLUDE: "common/after-image.org"
+# ]
+
+
+-----
+# <
+#+BEGIN_EXPORT md
+<p align='center'> <img width='100%'  src='./img/final-approximation.svg' /> </p>
+#+END_EXPORT
+# >
+
+# [
+In order to achieve that in an efficient way, programs have to share processor and memory:
+
+- Sharing memory means that one physical memory unit will hold data and instructions for all running programs.
+- Sharing processor means that programs will constantly take turns using processor for computations.
+
+Sharing memory is achieved by adding a level of indirection to all memory accesses.
+Now all addresses become /virtual/; all addresses in assembly instructions are virtual.
+Dedicated hardware components translate virtual addresses into physical addresses, which are then used to access physical memory. 
+
+
+Sharing processor requires multiplexing it.
+This is done with the help of a timer and interrupts.
+The operating system keeps a structure for every running program where it stores the program state.
+This state includes all registers but does not include memory contents: there is no need for that because programs stay in physical memory even if switch occurs.
+# ]
+
+
+-----
+
+# <
+** Switching between programs
+# >
+
+# [
+
+The basic sequence for switching between Program 1 and Program 2 is the following:
+
+1) The timer interrupts the execution of Program 1 and the processor starts to execute the interrupt handler, which is a part of the operating system.
+   # ]
+   # <
+  - The timer interrupts Program 1, OS handles it
+   # >
+  # [
+  #+INCLUDE: "common/before-image.org"
+  #+attr_latex: :width 0.70\textwidth
+  #+attr_html: :width 70%
+  {{{if-latex-else([[./img/processes-switch-0.svg]],)}}}
+  #+INCLUDE: "common/after-image.org"
+  # ]
+  # <
+  #+BEGIN_EXPORT md
+  <p align='center'> <img width='90%'  src='./img/processes-switch-0.svg' /> </p>
+  #+END_EXPORT
+  # >
+-----
+  # [
+2) The operating system saves a part of the state of Program 1 that is enough to return to its execution later.
+   Then it switches to the Program 2, restoring its state.
+   # ]
+   # <
+   - OS saves the state of Program 1, restores that of Program 2
+   # >
+  # [
+  #+INCLUDE: "common/before-image.org"
+  #+attr_latex: :width 0.70\textwidth
+  #+attr_html: :width 70%
+  {{{if-latex-else([[./img/processes-switch-1.svg]],)}}}
+  #+INCLUDE: "common/after-image.org"
+  # ]
+  # <
+  #+BEGIN_EXPORT md
+  <p align='center'> <img width='90%'  src='./img/processes-switch-1.svg' /> </p>
+  #+END_EXPORT
+  # >
+-----
+# [
+3) After the Program 2 depletes its timeslice the timer interrupts the execution of Program 2 and the processor starts to execute the interrupt handler again.
+# ]
+# <
+  - Timeslice over, interrupt, handler 
+# >
+# [
+  #+INCLUDE: "common/before-image.org"
+  #+attr_latex: :width 0.70\textwidth
+  #+attr_html: :width 70%
+  {{{if-latex-else([[./img/processes-switch-2.svg]],)}}}
+  #+INCLUDE: "common/after-image.org"
+  # ]
+  # <
+  #+BEGIN_EXPORT md
+  <p align='center'> <img width='90%'  src='./img/processes-switch-2.svg' /> </p>
+  #+END_EXPORT
+  # >
+-----
+  # [
+4) The operating system saves a part of the state of Program 2 that is enough to return to its execution later.
+   Then it switches to the Program 1, restoring its state.
+   # ]
+# <
+   - OS saves the state of Program 2, restores that of Program 1
+# >
+
+  # [
+  #+INCLUDE: "common/before-image.org"
+  #+attr_latex: :width 0.70\textwidth
+  #+attr_html: :width 70%
+  {{{if-latex-else([[./img/processes-switch-3.svg]],)}}}
+  #+INCLUDE: "common/after-image.org"
+  # ]
+
+  # <
+  #+BEGIN_EXPORT md
+  <p align='center'> <img width='90%'  src='./img/processes-switch-3.svg' /> </p>
+  #+END_EXPORT
+  # >
+-----  
+# [
+   
+In order for virtualization to be safe we require enforcing the boundaries of modules on this level of the system, that is, isolate programs one from another and from operating system.
+Any interaction outside a dedicated interface should be impossible.
+There are two obvious ways programs may interact with each other or the operating system:
+# ]
+# <
+How the programs can interact outside interfaces (breaks enforced modularity)?
+# >
+1) All programs share the same physical memory, through which they may interact.
+   # [
+   So if we manage to get from the space dedicated for Program 1 to the space dedicated to Program 2, this is an issue.
+   # ]
+2) Controlling address translation machinery for virtual memory may require special control instructions.
+# [
+   Any program is able to execute them, messing up mechanisms set up by the operating system.
+# ]
+-----
+# <
+Enforcing boundaries:
+1) Distinct memory spaces
+2) Privileged mode
+# >
+# [
+Two main protection mechanisms enforce boundaries between programs and the operating system and between programs themselves.
+
+1) Each process has a distinct virtual memory space and all virtual addresses in existence lead us to this space.
+   There is no instruction that accepts an address and may interact with a foreign address space.
+   Unless all the code is managed (e.g. decompiled and verified before being executed), a common address space is a risk.
+2) Processor works in two modes: /privileged mode/ and /unprivileged mode/.
+   It can be thought as a special one-bit register, although the reality is more complicated for Intel 64.
+   At all times processor is either in unprivileged mode, where its instruction set is restricted, or in privileged mode, where any instruction may be executed.
+   For example, there are system registers like =cr0= or =cr3= that should only be accessible by the operating system.
+   Instructions such as =mov= into =cr0= can only be executed while in privileged mode.
+
+   When an interrupt occurs, the processor automatically enters privileged mode to execute the interrupt handler.
+   When we return from the interrupt handler, the privileged bit gets cleared.
+
+
+In the next sections we will dive into implementation details of virtual memory and processor sharing.
+# ]
+
+-----
+
+* Virtualizing memory
+
+-----
+# [
+Because virtual memory is a complicated mechanism we will approach it through a series of approximations.
+# ]
+** First approximation
+Cutting address spaces into pages and their mapping to slots in physical memory.
+Pages may be assigned permissions and other meta-information.
+
+#+begin_comment
+Add an example of =mmap= usage.
+#+end_comment
+
+# [
+#+INCLUDE: "common/before-image.org"
+#+attr_latex: :width 0.9\textwidth
+#+attr_html: :width 80%
+{{{if-latex-else([[./img/vm-0.svg]],)}}}
+#+INCLUDE: "common/after-image.org"
+# ]
+
+
+# <
+#+BEGIN_EXPORT md
+<p align='center'> <img width='65%'  src='./img/vm-0.svg' /> </p>
+#+END_EXPORT
+# >
+
+-----
+
+** Swapping
+
+# [
+#+INCLUDE: "common/before-image.org"
+#+attr_latex: :width 0.9\textwidth
+#+attr_html: :width 80%
+{{{if-latex-else([[./img/vm-swap.svg]],)}}}
+#+INCLUDE: "common/after-image.org"
+# ]
+
+
+# <
+#+BEGIN_EXPORT md
+<p align='center'> <img width='50%'  src='./img/vm-swap.svg' /> </p>
+#+END_EXPORT
+# >
+
+-----
+** Second approximation
+ # <
+Mapping virtual address to physical address.
+# >
+# [
+#+INCLUDE: "common/before-image.org"
+#+attr_latex: :width 0.9\textwidth
+#+attr_html: :width 90%
+{{{if-latex-else([[./img/vm-1.svg]],)}}}
+#+INCLUDE: "common/after-image.org"
+# ]
+
+
+# <
+#+BEGIN_EXPORT md
+<p align='center'> <img width='90%'  src='./img/vm-1.svg' /> </p>
+#+END_EXPORT
+# >
+
+
+-----
+
+# [
+#+INCLUDE: "common/before-image.org"
+#+attr_latex: :width 0.30\textwidth
+#+attr_html: :width 30%
+{{{if-latex-else([[./img/vm-two-areas.svg]],)}}}
+#+INCLUDE: "common/after-image.org"
+# ]
+
+# <
+#+BEGIN_EXPORT md
+<p align='center'> <img width='40%'  src='./img/vm-two-areas.svg' /> </p>
+#+END_EXPORT
+# >
+
+-----
+** Third approximation 
+
+# <
+# [
+#+INCLUDE: "common/before-image.org"
+#+attr_latex: :width 0.9\textwidth
+#+attr_html: :width 90%
+{{{if-latex-else([[./img/virtual-address-details.svg]],)}}}
+#+INCLUDE: "common/after-image.org"
+# ]
+
+
+# <
+#+BEGIN_EXPORT md
+<p align='center'> <img width='90%'  src='./img/virtual-address-details.svg' /> </p>
+#+END_EXPORT
+# >
+# >
+-----
+
+# [
+#+INCLUDE: "common/before-image.org"
+#+attr_latex: :width \textwidth
+#+attr_html: :width 100%
+{{{if-latex-else([[./img/virtual-memory.png]],)}}}
+#+INCLUDE: "common/after-image.org"
+# ]
+
+
+# <
+#+BEGIN_EXPORT md
+<p align='center'> <img width='70%'  src='./img/virtual-memory.png'/> </p>
+#+END_EXPORT
+# >
+
+
+-----
+** Page map entry
+
+# [
+#+INCLUDE: "common/before-image.org"
+#+attr_latex: :width 0.7\textwidth
+#+attr_html: :width 70%
+{{{if-latex-else([[./img/pme.svg]],)}}}
+#+INCLUDE: "common/after-image.org"
+# ]
+
+
+# <
+#+BEGIN_EXPORT md
+<p align='center'> <img width='70%'  src='./img/pme.svg' /> </p>
+#+END_EXPORT
+# >
+
+
+-----
+
+** Fourth approximation
+
+- Translation lookaside buffer
+- Working set of pages
+- Locality
+
+
+-----
+
+# [
+Interestingly, the operating system is mapped to the second half (starting with =FF80...=) of all virtual memory spaces.
+Because of it, when in kernel mode and executing kernel code, we do not really care about the value of =cr3=: changing =cr3= affects only the lower part of the address space, which belongs to the user process.
+This allows switching virtual memory space by writing to =cr3= at any time.
+
+As a consequence, the task switch actually occurs only between tasks in kernel mode.
+# ]
+
+# [
+#+INCLUDE: "common/before-image.org"
+#+attr_latex: :width 0.5\textwidth
+#+attr_html: :width %50
+{{{if-latex-else([[./img/os-mapping-processes.svg]],)}}}
+#+INCLUDE: "common/after-image.org"
+# ]
+
+
+# <
+#+BEGIN_EXPORT md
+<p align='center'> <img width='60%'  src='./img/os-mapping-processes.svg' /> </p>
+#+END_EXPORT
+# >
+
+
+-----
+* Virtualizing processor
+
+# [
+Now that we know how virtual memory works, let us see how the processor is virtualized to be shared among user threads via multiplexing.
+
+When an interrupt occurs three important things happen automatically:
+
+1) We start executing the interrupt handler.
+2) The stack is switched to the kernel stack. Every thread has at least two stacks: user stack and kernel stack.
+3) The old (user) values of registers =rip=, =rflags= and =rsp= are saved to the kernel stack of the current process.
+
+ 
+  
+# ]
+-----
+# [
+#+INCLUDE: "common/before-image.org"
+#+attr_latex: :width 0.\textwidth
+#+attr_html: :width %
+{{{if-latex-else([[./img/context-switch.svg]],)}}}
+#+INCLUDE: "common/after-image.org"
+# ]
+
+
+# <
+#+BEGIN_EXPORT md
+<p align='center'> <img width='90%'  src='./img/context-switch.svg'/> </p>
+#+END_EXPORT
+# >
+
+# [
+
+Sequence for threads 1 and 2:
+
+- Timer interrupts program; execute interrupt handler in privileged mode.
+- Handler saves all registers
+- OS switches to another thread (CR3) -- OS is mapped to every thread so while executing OS we can change =cr3= as we like.
+- restore registers of 2
+- =iret=
+
+** Interrupts
+- IDT
+- What happens when an interrupt arrives
+- How `iret` works
+  
+# ]

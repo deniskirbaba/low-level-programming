@@ -1,0 +1,1463 @@
+#+INCLUDE: "common/org-header.org"
+#+LANGUAGE: en
+#+TITLE: Chapter 3. Interpreter. Assembly.
+
+# <
+* Interpreter. Assembly.
+# >
+
+  # [
+
+  There is an interesting essay about three archetypes of programmers [fn:three-tribes-programmers].
+  They differ by their priorities in programming, by their motivation to program and by the aspects of programming that they particularly enjoy.
+
+  The first type are programmers-/mathematicians/, programmers-/poets/.
+  They perceive programming as an art of ideas.
+  Program should be, first and foremost, correct and beautiful, and read like a poetry.
+  How the program is compiled and executed is an implementation detail.
+  They love expressive and well-designed high-level languages like Ocaml.
+  Such languages allow expressing ideas in a most beautiful, concise and correct way.
+
+  The second type are programmers-/engineers/, they like having control over the machine.
+  They are fascinated by how software and hardware interact and give birth to computations.
+  For them programs are instructions for machines and should be first and foremost efficient.
+  If a program behaves incorrectly in some rare case, ignore it.
+  They love low-level languages like C because they give more control over the program execution.
+  These programmers care much less about language design and the associated costs for the program correctness or the time spent on debugging.
+
+  The third type are programmers-/makers/, programmers-/entrepreneurs/.
+  They build products for real people to solve real problems.
+  The program is good if it solves the problem and better if it provides a smooth user experience.
+  The choice of tools and their right application is secondary.
+
+  These three archetypes are, of course, pure and distilled; in reality each of us has traits from all three archetypes.
+  Neither type is better than others, because the distinction comes from their subjective values.
+  The IT industry would not be where it is now without all three types interacting to our mutual benefit:
+
+  - Mathematicians develop general concepts and generate ideas that end up adopted in mainstream programming languages.
+  - Engineers optimize compilers and hardware so that everything works fast and efficiently.
+  - Entrepreneurs create apps, automate routine tasks, invent new models of human interaction facilitated by computer systems, provide a well thought out user experience.
+
+
+  I think it is reasonable to consider three axes of development: /what/ are we doing, /how/ we are doing it and /why/.
+  It would be perfect to be good at all three like Alan Kay or Xavier Leroy, but we are unable to grow uniformly in all aspects.
+
+  In this course we try to help you grow along the first two axes: /what/ are we doing and /how/ it works.
+  /What/ shows the ideas behind programming and crafting complex systems.
+  /How/ shows how the systems function in detail on lower levels, which is important to diagnose bugs.
+
+  In this part we will focus on /how/ the systems function.
+  Some aspects of running systems can be studied analytically through building similar but simplified models.
+  For example, if the system is able to solve a problem for an array of 100 elements in 1 second, how long will it take for 100000 elements?
+  The answer can vary from two seconds to billions of billions of years.
+  But studying other aspects can not be reduced to oversimplified models.
+  To understand them we need to know how the system functions on all its levels.
+  For example, the programs may start to lag because the memory accesses are not optimized and produce multiple cache misses.
+  Understanding the system on many levels allows us to guess understand the reason behind undesired or incorrect behavior right away, or at least guess where to start looking.
+
+  For this part we are giving you two promises.
+  First, you will understand why we build special models of computation to analyze the functioning of real systems.
+  Second, thanks to learning the basics of assembly language you will understand how computer works better, and this understanding will one day save you a lifetime of debugging.
+
+
+  # ]
+
+  -----
+
+* References
+  :PROPERTIES:
+  :UNNUMBERED: t
+  :END:
+
+  # [
+
+  For today's part the references are as follows:
+
+  # ]
+  - [[https://josephg.com/blog/3-tribes/][Three tribes of programmers]]
+  - "Low-level programming": Chapter 2.
+  - "Intel® 64 and IA-32 Architectures Software Developer’s Manual. Volume 2: Instruction Set Reference". Pages for instructions:
+    - =mov=
+    - =add=, =sub=, =imul= / =mul=, =idiv= / =div=, =xor=, =cmp=, =test=; =neg=; =inc=, =dec=
+    - =call=, =ret= ; =push=, =pop=
+    - =jmp=, =ja= and similar ones
+
+-----
+# <
+* Recap
+  :PROPERTIES:
+  :UNNUMBERED: notoc
+  :END:
+  - Interpreters (functional component)
+    - Other types: memory, communication link.
+  - Some models of computation:
+    - FSM, transition systems
+  - Behaviors
+    - Determinism/non-determinism
+    - Undefined behavior/totality
+  - Model checking examples
+    # >
+
+  -----
+
+* RAM-machine
+  # [
+
+  Imagine a bank account system that should analyze millions of operations to find suspicious, possibly fraudulent transactions.
+  There are multiple ways to implement it, and some of them are faster than others.
+  But which implementations will be better, according to some metric?
+
+  The obvious way of telling is just creating several systems and comparing them, which will give us an ultimate answer.
+  But it is a huge work for which we probably do not have time, money, or developers.
+  So we need an approach to comparing ideas of systems and deciding which one has a good chance to be better in some way.
+  Questions that are of a particular interest to us are: performance (for interpreters), memory consumption (for memory), bandwidth usage (for communication links).
+
+  # ]
+
+** Estimating complexity
+
+   # <
+   We want to estimate complexity of programs.
+
+   Every class on "Algorithms and data structures" is using one model.
+   # >
+
+   # [
+   Naturally an analytic approach to comparing algorithms should somehow involve their model of computation.
+   Once we fix the set of basic operations we can also assign them costs, i.e. numbers showing how expensive is each operation.
+   It allows us to study analytically how the combined cost of operations evolves as the program gets executed.
+   The cost typically depends on the program input in one of two ways:
+
+   - If the input is a number, then the cost may evolve depending on the input value.
+
+     For example, if we want to factorize a number, the bigger the number the harder it is to factorize.
+
+   - If the input is a data structure, the cost may depend on its size.
+
+     For example, finding the shortest paths between all villages on the map gets harder as we add more villages and roads.
+
+   The performance analysis thus usually answers one of two questions:
+
+   - If the input number is increased, how exactly will the execution time increase?
+   - If the input contains more elements, how exactly will the execution time increase?
+
+   This metric is called /time complexity/.
+
+   To solve some problems we may need to allocate additional memory to store temporary results of computations.
+   For example, Bellman-Ford algorithm may be used to find a shortest path between two nodes in a computer network.
+   The network protocol called RIP uses it to find optimal routes for packets.
+   Bellman-Ford algorithm requires allocating at least as many numbers in memory as there are nodes in the network.
+
+   So, algorithms can be analyzed for their algorithmic complexity, and also for their /space complexity/.
+   The space complexity analysis usually answers one of two questions:
+
+   - If the input number is increased, how exactly will the memory consumption increase?
+   - If the input contains more elements, how exactly will the memory consumption increase?
+
+
+   The analysis is usually done separately for the worst case, the best case and for an average case.
+   The exact amount of steps is usually too verbose. For example, we may discover that a certain implementation of an algorithm does exactly this number of steps as a function of the algorithm's input $n$:
+# ]
+# <
+This is too verbose:
+# >
+
+#+begin_export latex
+   $$T(n) = 1231n^4+231n^3+ln_2(9n)+1231$$
+#+end_export
+
+#+begin_export html
+   $$T(n) = 1231n^4+231n^3+ln_2(9n)+1231$$
+#+end_export
+# <
+
+   Big-O notation (see Algorithms and Data Structures class).
+   # >
+# [
+
+   This is not much more useful than saying that "the number of steps grows as the fourth power of $n$", because as $n$ grows, the expression $T(n)$ behaves like $cn^4$, where $c$ is a constant.
+   So the results of analysis are usually presented in asymptotic form, using Big O notation.
+   Big O is a mathematical notation that describes the limiting behavior of a function as its input tends towards infinity.
+   This is explained in more details in the algorithms class.
+
+
+   Studying complexity of algorithms relies on their model of computation.
+   Some models of computations are crafted to approximate other, more complex models.
+   Because of their simplified nature they are easier to analyze.
+   Then the properties of these simplified models can be propagated to their more complex cousins, as long as the simple model is not too simple.
+
+   # ]
+   -----
+** RAM-machine
+   # [
+
+   RAM [fn:1] (random-access machine) is a simple model used in most classes in "Algorithms and Data structures".
+   It is useful to analyze performance and memory consumption of algorithms.
+
+   # ]
+
+   # <
+   - Linear memory, fixed instruction set, immutable programs.
+
+     # >
+    # [
+   #+INCLUDE: "common/before-image.org"
+   #+attr_latex: :width 0.6\textwidth
+   #+attr_html: :width 60%
+   {{{if-latex-else([[./img/ram-machine.svg]],)}}}
+   #+INCLUDE: "common/after-image.org"
+# ]
+
+   #+BEGIN_EXPORT md
+<p align='center'> <img width='40%'  src='./img/ram-machine.svg' /> </p>
+   #+END_EXPORT
+
+   # <
+   - Additional memory for input and output data.
+   # >
+   # [
+   Computer architecture alone is not enough to define a model of computation because it does not define a set of basic operations.
+   Architecture only provides us with some constraints on the abstract machine.
+
+   To define RAM we take von Neumann architecture as a starting point.
+   Then we add some simple and generic instruction set, which allows copying data between memory cells, accessing a memory cell by an address stored in another memory cell and basic arithmetic.
+   We also add two more memories: read-only memory for input data, write-only for output data.
+   Both can only be used sequentially.
+
+   Finally, we will protect the program instructions from being overwritten; it makes the main memory different from the classical von Neumann machine.
+   It is convenient for evaluating costs because programs can not mutate themselves and input/output data stays the same.
+
+     # ]
+     -----
+
+** Properties
+
+   # <
+   Memory is unlimited.
+
+   Costs of operations in RAM model:
+
+   - A simple operation (+, \, *, -, =, if) --- one time step.
+   - Loops and functions are comprised of simple operations.
+   - Memory access --- one time step.
+
+   # >
+    # [
+   The RAM model assigns the following costs to operations:
+
+   - A simple operation (+, \, *, -, =, if) takes one time step.
+   - Loops and functions are comprised of simple operations.
+   - Memory access takes one time step.
+
+   It makes straightforward to understand costs of executing programs written in languages like C or assembly.
+   Such languages are centered around arithmetic and reading and writing variables.
+   All these actions cost one time step.
+   These operations are combined through sequential execution, branching, loops, and calls.
+
+   Note also, that in RAM the main memory is unlimited.
+
+   # ]
+   -----
+
+** Difference from reality
+   # [
+   Despite the simplifying assumptions made by the RAM model, it works well in practice most of the time.
+   However, here are some points where RAM may substantially diverge from the reality.
+   # ]
+   # <
+   In reality, the model is not 100% faithful to the machine:
+   # >
+   - Memory accesses are not the same: order, locality, alignment may be important.
+   - Arithmetic has constant cost O(1), but in reality long arithmetic is costly.
+   - CPU executes only one program, in reality CPU is shared among many.
+   - In reality one instruction may be executed faster or slower depending on CPU state.
+   - Memory pages may be swapped out.
+   - JIT-compilation generates programs while they are being executed (JavaScript, JVM, CLR).
+   - ...
+
+     -----
+
+* Complexity and three abstractions
+  # [
+
+  In the previous section we have mentioned two types of complexity: time, for studying performance, and space, for studying memory consumption.
+  They match well two out of three types of functional components: time complexity concerns interpreters, while space complexity concerns memories.
+  What about communication link?
+  It turns out that there is a complexity metric for it too.
+  When parts of the computer system are exchanging data trying to solve some problem, how many bits should be transferred to answer the question? Let us see an example of that.
+
+  # ]
+  # <
+  - Algorithmic complexity (interpreter)
+
+    How many operations are required?
+
+  - Memory complexity (memory)
+
+    How much additional memory is required?
+
+  - Communication complexity (communication link)
+
+    When there is data exchange, how many bits should be transferred to answer a question?
+    # >
+
+    -----
+
+
+
+** Communication complexity
+   # [
+   Suppose two parties --- Alice and Bob --- have memories and can exchange bits.
+   Both of them have an almost identical string of bits, and it is known that they are different in exactly one bit.
+   The goal of Alice and Bob is to find out the position of this bit using as little bandwidth as they possibly can.
+   # ]
+
+
+   - Alice and Bob have each a string of bits.
+   - Their strings are equal except for one single bit.
+   - Alice and Bob want to exchange data to find where is this bit.
+   - They want to minimize the data exchange (ideally not send everything)
+
+   -----
+   # [
+   The exchange protocol should be fixed: at each moment of time Alice and Bob should understand who is sending data now and how many bits to send.
+
+   There is of course a trivial solution: Alice sends the string to Bob, Bob responds with the position of the bit.
+   But we can do better.
+   This problem may be solved probabilistically, can you think about a solution?
+
+   # ]
+   # <
+   - Protocol should be fixed:
+     - how Alice and Bob take turns
+     - how many bits are sent during each step
+
+   Can be solved deterministically or using probability.
+   # >
+   -----
+
+* Intel 64/AMD64 computer
+
+  # [
+
+  RAM give us a way of understanding some key aspects of program behavior e.g. how much memory is required of how fast the programs execute on different inputs.
+  But we often need a deeper and more nuanced understanding of /how/ the programs are executed.
+
+  TODO For example,
+
+  Real computers can only execute machine code.
+  Programs written in any other language have to be translated into machine code.
+  So studying assembly develops a detailed understanding of how real programs are executed.
+
+  Often the vulnerabilities or subtle bugs in high-level code can only be explained if we descend on a lower level of a computer system.
+  Understanding low-level enables us to explain these bugs, find what causes them and ultimately fix them.
+
+  To ground ourselves and be more specific we will study only one type of computers, namely those following Intel 64, or AMD64 architecture.
+
+ # ]
+
+** Development
+
+   # [
+   Learning assembly is impossible without practicing, so we have to be able to write code, compile and execute it.
+   You may program in assembly in any environment: without operating system at all, on Linux, MacOS or Windows.
+   The code will have to be written differently though and if you begin writing assembly you probably do not want to get into such details yet.
+   The easiest way to start is to use Linux with the following programs installed:
+ # ]
+
+# <
+    - Operating System :: GNU/Linux x64
+# >
+    - Assembler :: nasm
+    - Debugger :: gdb
+    - Text Editor :: any text editor
+
+    # [
+    If you are a Windows user, we recommend using Windows Subsystem for Linux and installing any Linux distributive on top of it.
+    Alternatively you may use a virtual machine for e.g. VirtualBox or VMWare.
+
+    If you are a MacOS user, we recommend setting up a virtual machine.
+    You probably will not able to make simple assembly programs work because in MacOS all executables should be position independent (and it is not straightforward how to produce them).
+    Besides, Apple is migrating from Intel 64 to a different architecture M1 with a different and incompatible instruction set.
+
+    Once we set everything up, we are ready to proceed with learning the bare minimum of details about the computer architecture and writing our first programs.
+
+   # TODO docker?
+    # ]
+
+
+    -----
+** Architecture
+
+     # [
+    The overall structure of Intel 64 computer is familiar to us: there is a CPU with the interrupts support, registers, main linear random-access memory and storage --- usually a HDD or a SSD.
+   The main memory hosts the program instructions and all data required for its execution.
+   The execution is sequential, the instructions are executed one after another, except for branching instructions.
+
+   #+INCLUDE: "common/before-image.org"
+   #+attr_latex: :width 0.6\textwidth
+   #+attr_html: :width 60%
+   {{{if-latex-else([[./img/intel-64-1.svg]],)}}}
+   #+INCLUDE: "common/after-image.org"
+
+   # ]
+
+# <
+   #+BEGIN_EXPORT md
+ <p align='center'> <img width='60%'  src='./img/intel-64-1.svg' /> </p>
+   #+END_EXPORT
+# >
+   # <
+   - 64-bit architecture Intel 64 (AMD64).
+   - Registers, memory with stack, interrupts.
+   -скорее скорее  Sequential execution.
+   # >
+   -----
+
+# [
+But to start programming in assembly we have to get into more details:
+
+    - Memory and registers are organized as collections of bytes. One byte is 8 bits wide.
+    - In memory, every byte has an address.
+        For convenience bytes are drawn in packs of eight on the picture.
+        The first pack starts at address 0, the second pack starts at address 0x8 and so on.
+    - There are 16 general purpose registers, CPU is able to perform arithmetic operations with them.
+        We need four of them for a start: =rax=, =rdx=, =rdi=, =rsi=.
+
+    - =rip= is a special register called /program counter/.
+        It contains the address of the next instruction to be executed and is automatically updated.
+
+
+    #+INCLUDE: "common/before-image.org"
+    #+attr_latex: :width 0.9\textwidth
+    #+attr_html: :width 90%
+    {{{if-latex-else([[./img/intel-64-2.svg]],)}}}
+    #+INCLUDE: "common/after-image.org"
+
+    # ]
+
+  # <
+    #+BEGIN_EXPORT md
+  <p align='center'> <img width='100%'  src='./img/intel-64-2.svg' /> </p>
+    #+END_EXPORT
+# >
+** Operating systems
+
+  Our programs will work under the supervision of an operating system, a variant of Linux[fn:3].
+  Operating systems are resource managers for programs and for computer systems overall.
+  They abstract resources such as external storage or screen so that we become unable to work with devices directly from user applications.
+
+  All interactions with devices involve operating system.
+  This is substantially easier than programming on bare metal, where we need to know every tiniest detail of the device functioning.
+  This enables us to view the storage as a collection of files, rather than thinking about the hard disk drive's sectors, blocks etc.
+
+  Operating systems provide /system calls/ to handle communication with external devices, other programs, file system etc.
+  You may consider a part of the operating system to be a library of system calls.
+
+   -----
+** Program termination
+
+   The first program we will write consists of a single invokation of =exit= system call, and this section explains its necessity.
+
+   In physical memory all cells are holding some values.
+   Cells where we have not explicitly put anything hold random, garbage values.
+   So, if we read memory locations where we did not load anything specific we will be either getting errors or fetching garbage values.
+
+   Now suppose we are running a program.
+   CPU executes all its instructions sequentially.
+   Then, because CPU is not aware of where the program instructions end in memory, it continues fetching instructions from memory past the last instruction.
+
+#+begin_src asm
+; after executing an instruction the processor will fetch
+;    the next one from memory
+instruction_1
+instruction_2
+  ...
+; after executing this instruction, which is the last in the program,
+;    the processor will fetch the next values from memory
+;    and attempt to decode an instruction
+last_instruction
+; but only garbage values live after `last_instruction`
+; garbage values are unlikely to be decoded as a correct instruction
+#+end_src
+
+  #  In this case CPU will issue an internal interrupt, that is, an interrupt that does not come from an external device, but from within the system.
+  # external interrupt, internal interrupts pause the program from further execution and give control to the interrupt handlers, little programs that
+# This is a particular case of /internal interrupts/, coming from inside the system when something is wrong, e.g. dividing by zero or incorrect instruction.
+
+   Trying to interpret these garbage values as instructions will result in an error.
+  To prevent these errors, programs should end by requesting the operating system for a graceful termination.
+  Recall the FSM diagram for the process state: program termination corresponds to the transition =RELEASE= from the =RUNNING= state to the =TERMINATED= state.
+
+   #+INCLUDE: "common/before-image.org"
+   #+attr_latex: :width 0.9\textwidth
+   #+attr_html: :width 80%
+  {{{if-latex-else([[./img/fsm-processes.svg]],)}}}
+   #+INCLUDE: "common/after-image.org"
+
+   #+BEGIN_EXPORT md
+<p align='center'> <img width='60%'  src='./img/fsm-processes.svg'> </p>
+   #+END_EXPORT
+
+   In Linux, a system call =exit= requests termination of the running program.
+
+   # ]
+** Minimal working example
+
+   # [
+   The minimal and correct assembly program should just terminate itself correctly by invoking =exit= system call:
+
+#+BEGIN_SRC asm
+; comments start with semicolon
+
+; label marking the first instruction should be declared `global`
+global _start
+
+section .text
+; execution starts from `_start`
+_start:  mov     rax, 60   ; identifier of `exit` syscall
+              mov     rdi, 0    ; rdi = 0
+              syscall           ; exit(0)
+#+END_SRC
+
+   # ]
+   # <
+#+BEGIN_SRC asm
+; comments start with semicolon
+
+; label marking the first instruction should be declared `global`
+global _start
+
+section .text
+_start:  mov     rax, 60   ; 'exit' syscall number
+         mov     rdi, 0    ; rdi = 0
+         syscall           ; exit(0)
+#+END_SRC
+
+   # >
+   # [
+
+   We will now study and dissect this program.
+
+*** Sections
+    
+   There is one section in this program: =.text=.
+
+   An assembly program is usually divided into sections.
+   Sections affect the memory location where the parts of the program will be placed.
+   In our computers there is only one memory for code and data, but it is more convenient to separate code from data instead of mixing them together.
+   So, all code is grouped inside the =.text= section, while all global variables reside in =.data= section.
+
+*** Labels
+    
+   There is one label in this program: =_start=.
+
+    Every instruction or variable has an address, which is a number like =0x42= or =0x42232323432f3=.
+    But using numbers for referencing code or data is inconvenient.
+    Instead we create symbolic names for addresses called /labels/.
+
+    After creating a label, whenever we use the label name in the code it gets substituted with its address.
+    Labels may precede any command and are usually separated from it by a colon.
+
+*** Entry point
+    
+   There is always one label which is the entry point: =_start=.
+
+   An assembly program should contain a unique =_start= label.
+   It marks the /entry point/ for the program, the address of the first instruction to be executed.
+   This instruction does not have to be the first in the section =.text=, but the program will be executed sequentially starting from this instruction.
+
+    This label should be also declared =global=; we will discover the meaning of it later.
+
+*** Instructions
+
+    Now let us focus on the section =.text= which holds executable instructions. There are two types of instructions in this program:
+
+    - =mov=, which copies a value to register or memory.
+
+      For example, the instruction =mov rax, 60= assigns 60 to the register =rax=.
+    - =syscall=, which interacts with the operating system and performs a system call.
+
+
+*** Invoking system calls
+
+
+    In the minimal example we invoke a system call =exit= with an identifier 60; its only argument is the return code equal to 0:
+
+    #+BEGIN_SRC asm
+    mov     rax, 60          ; `exit` syscall number
+    mov     rdi, 0           ; rdi = 0, first argument
+    syscall                  ; invoke `exit(0)`
+    #+END_SRC
+
+    Every system call has a unique identifier, a number.
+    To perform a system call:
+    - put its identifier to =rax=
+    - put its arguments to =rdi=, =rsi=, =rdx= (and three other registers, up to 6 arguments)
+    - execute =syscall= instruction.
+
+   The order in which arguments were copied to registers is not important.
+   In other words, the first argument to system calls is always in =rdi=, and the second is always in =rsi=, but it does not matter whether you first initialized =rdi=, then =rsi=, or vice versa.
+
+    # [
+** Compilation
+
+    To compile our first program, save it as =hello.asm=, open a terminal emulator, navigate to the directory where it is located and type:
+    # ]
+    # <
+    Save to =hello.asm= and compile with:
+    # >
+    #+begin_src bash
+nasm -felf64 hello.asm
+ld -o hello hello.o
+    #+end_src
+
+
+    # [
+    This will perform two actions:
+
+    - transform the source code =hello.asm= into a half-baked /object file/ =hello.o=;
+    - transform the object file =hello.o= into an /executable file/ =hello=.
+
+    #+attr_latex: :width 0.6\textwidth
+    #+attr_html: :width 60%
+    {{{if-latex-else([[./img/asm-pipeline.svg]],)}}}
+
+    Object files contain fragments of machine code but can not be executed yet.
+    A special program called /linker/ (in our case, =ld=) finalizes them and produces an executable file.
+    # ]
+
+
+# <
+#+BEGIN_EXPORT md
+ <p align='center'> <img width='90%'  src='./img/asm-pipeline.svg' /> </p>
+    #+END_EXPORT
+# >
+
+    -----
+** Incorrect program termination
+
+    # [
+    To demonstrate why it is important to terminate programs, try to run this program which does not contain any instructions and does not terminate gracefully by invoking =exit=:
+    # ]
+
+    #+BEGIN_SRC asm :caption "hello.asm"
+global _start
+section .text
+_start:
+    #+END_SRC
+
+    Executing this program yields an error when CPU tries to decode a garbage value as an instruction.
+
+#+BEGIN_SRC bash
+> ./hello
+Segmentation fault
+#+END_SRC
+
+The message =Segmentation fault= appears often in low-level programs when they contain errors related to memory accesses.
+    -----
+
+    # [
+** Documentation
+
+   In this part we explain the instructions that we are using.
+   But in future we will be referring you to Intel 64 and IA-32 Architectures Software Developer's Manual available online.
+   It is huge and may seem intimidating, but it is very well structured.
+   The second volume covers instruction set completely and has a very useful table of contents.
+   Please, always use it to get information about instruction set: it is a very good habit, since the work of mature programmer often requires working with official documentation directly.
+
+   #+BEGIN_COMMENT
+   Show the manual on screen.
+
+   =man -s2 syscall=
+
+
+   #+END_COMMENT
+   # ]
+
+   -----
+** Encoding characters
+
+   Characters are letters, digits, signs, letters (uppercase and lowercase), spaces and everything else that you can encounter in text.
+   We need to operate with strings of characters in our programs to output text on screen.
+   Memory, as we know, contains only zeros and ones, so we need to somehow encode characters as numbers.
+   Programmers have agreed upon a table where each character is assigned a unique one-byte integer --- its /ASCII-code/.
+   An /ASCII-table/ provides the correspondence between characters and their codes.
+   Here is the full table:
+
+   #+include: "./listings/ascii" example
+
+   First, we may notice that this table contains not only letters, digits, and other things we can print on paper, but also spaces and some special characters, like =NUL= (null character).
+   Usually we do not need any special characters besides spaces and the null character which often marks the end of strings (more on that later).
+
+   Second, the table above has only 128 values, while one byte can hold $2^8 = 256$ different values.
+   The other 128 values are used to store national characters like Cyrillic letters or letters with accents e.g. /é/ or /á/.
+   Naturally, 128 different characters are not enough to match against all national characters in the world, so the modern way of dealing with them is to use Unicode with multibyte characters whenever possible.
+   Luckily for us the first 128 ASCII characters are also valid for Unicode so if we limit ourselves with Latin letters we will be able to work with ASCII without thinking about Unicode (which is hard to implement).
+
+
+** Encoding strings
+
+    Strings of ASCII-characters are encoded as sequences of one-byte numbers.
+    The =db= keyword is used to emit data bytes directly; values are separated by commas.
+    One way of encoding the string ="hello, world!"= is as follows:
+
+    #+begin_src asm
+section .data
+; encoded 'hello, world!'
+db 104, 101, 108, 108, 111, 44, 32, 119, 111, 114, 108, 100, 33
+#+end_src
+
+Luckily for us we do not have to remember all these codes because =nasm= is able to encode text for us.
+The following code does exactly the same:
+
+#+begin_src asm
+section .data
+; encoded 'hello, world!'
+db "hello, world!"
+#+end_src
+
+Multi-line strings use the special symbol =CR= with the code 10 called a /newline character/ for a line break.
+If we output the following string:
+
+#+begin_src asm
+section .data
+db  "hello, world!", 10, "hello back!"
+#+end_src
+
+... then we will see:
+
+#+begin_example
+hello, world!
+hello back!"
+#+end_example
+
+
+If we need to work with the string we mark its starting address with a label.
+
+#+begin_src asm
+section .data
+message: db "hello, world!", 10
+#+end_src
+
+Theoretically data can be placed to any section including =.text= but this is usually not a good idea.
+
+Apparently, =db= is not an assembler instruction.
+Constructions like that are called /directives/.
+They control the translation process and do not correspond to any instruction.
+
+In our first example there were two directives: =global= and =section=.
+    # ]
+
+** Input and output
+   # [
+
+   We will follow the tradition of writing a simple "Hello, world!" program.
+   It is not the most primitive program because it actually does two actions: displays a welcome message on screen and terminates.
+    
+   Displaying text on screen means working with external device --- computer screen --- and thus involves the operating system.
+
+   In Linux, everything that looks like a stream of bytes is abstracted as a /file/:
+
+   - data access on HDD/SSD;
+   - data exchange between programs;
+   - interaction with external devices.
+      For example, changing the screen brightness on your laptop can be done by writing to a file; its path depends on the exact model, but typically it is located at =/sys/class/backlight/intel_backlight=.
+
+   To start working with a file we usually have to /open/ it first.
+   By invoking an =open= system call the operating system establishes a connection between the program and the file and assigns a unique identifier to this connection, called /file descriptor/.
+   A descriptor is just an integer value, like 42 or 999.
+   Then we can read and write to the opened file using this descriptor as its handle.
+
+   Three special files are opened at program start and should not be opened or closed manually:
+
+   - stdin :: standard input with descriptor 0. By default it is connected to the keyboard input.
+   - stdout :: standard output with descriptor 1; it is used to output the results of program execution. By default it is connected to the terminal output, so you may see the text on screen.
+   - stderr :: standard diagnostic output with descriptor 2; it is used to output information about the program execution process, but not its results, f.e. errors and diagnostics.
+
+     # ]
+   # <
+   Running program with three special file descriptors.
+
+   # >
+# [
+   #+attr_latex: :width 0.5\textwidth
+   #+attr_html: :width 50%
+   {{{if-latex-else([[./img/stdio.svg]],)}}}
+  # ]
+
+  # <
+   #+BEGIN_EXPORT md
+ <p align='center'> <img width='60%'  src='./img/stdio.svg' /> </p>
+   #+END_EXPORT
+# >
+
+   -----
+
+   # [
+
+** Printing "Hello, world!"
+
+     In order to show =Hello, world!= on screen we need to append it to =stdout=, the file with the descriptor 1.
+     For that we invoke the =write= system call which accepts three parameters:
+
+     1) file descriptor;
+     2) address from which we take data;
+     3) how many bytes to write.
+
+ In pseudocode, the signature of =write= is:
+     # ]
+     #+BEGIN_SRC c
+int write(<rdi> descriptor, <rsi> address, <rdx> how_many_bytes)
+     #+END_SRC
+
+     # [
+
+     The next program will invoke two system calls:
+
+     1) =write(1, message, 14)=
+     2) =exit(0)=
+
+     The unique identifier of =write= is 1, so we assign =rax = 1= to select the system call =write= and =rax = 60= to select =exit=.
+
+     # ]
+
+     # <
+     Call =write( 1, message, 14 )=:
+     # >
+
+     #+begin_src asm
+global _start
+
+section .data
+                              ; 10 is the code for newline
+message: db  'hello, world!', 10
+
+section .text
+_start:
+    mov     rax, 1           ; 'write' system call identifier
+    mov     rdi, 1           ; stdout = 1
+    mov     rsi, message     ; address
+    mov     rdx, 14          ; length in bytes
+    syscall
+    mov     rax, 60          ; 'exit' syscall number
+    mov     rdi, 0
+    syscall
+     #+end_src
+
+     # [
+     Unlike the first program, this program has two sections: =.text= and =.data=.
+     Let us dissect the new section =.data=.
+
+
+    -----
+
+** First glance at subroutines
+  # [
+
+  We see that programming in assembly is extremely verbose.
+  Doing anything requires writing a lot of instructions.
+  However, programming in assembly is not hard.
+  As  in high-level programming languages, a greatest tool in reducing verbosity is using subroutines, functions, that allow us to isolate a piece of code, name it and then call it by its name.
+
+  Subroutines name a piece of code so that we can reuse it multiple times.
+  In machine instructions a subroutine is defined by the address of its first instruction.
+  In assembly it is convenient to start subroutines with a label so that we can call them by labels.
+
+  Unlike functions, which are limited by ={= curly braces =}=, subroutines do not have well defined borders.
+  The instruction =ret= marks the exit point of a subroutine.
+  When =ret= is executed, we fall back to the instruction where the subroutine was called.
+
+
+#+begin_src asm
+some_subroutine:
+   instruction1
+   instruction2
+     ...
+   ret
+#+end_src
+
+To start executing this subroutine we write =call some_subroutine=.
+Then its instructions will be executed.
+ 
+#+begin_src asm
+; The arrow shows which instruction will be executed next
+some_subroutine:         
+   instruction1         
+   instruction2
+     ...
+   ret                   ; --. 
+_start:                  ;   |         
+   call some_subroutine  ;   |
+   mov rax, 42           ; <-'  first instruction to be executed after `ret`
+; <- 
+ #+end_src
+
+
+Once we reach the instruction =ret= we get back to the place where the subroutine was called.
+#+begin_src asm
+; The arrow shows which instruction will be executed next
+some_subroutine:         
+   instruction1          ; <-.
+   instruction2          ;   |
+     ...                 ;   |
+   ret                   ;   |
+_start:                  ;   |
+   call some_subroutine  ;---' after `call` we execute `instruction1`
+   mov rax, 42  ; <- first instruction to be executed after `ret`
+ #+end_src
+
+
+  We will see what makes subroutines different from functions and how =call= and =ret= affect the stack a bit later.
+
+   -----
+** "Hello, world!" with subroutines
+
+   We refactor our previous example and extract two subroutines: one terminates program correctly, another outputs ="Hello, world!"=.
+
+   #+BEGIN_SRC asm
+  global _start
+
+  section .data
+  message: db  'hello, world!', 10
+
+  section .text
+  exit:
+      mov     rax, 60          ; 'exit' syscall number
+      mov     rdi, 0
+      syscall
+      ret
+  hello:
+      mov     rax, 1           ; 'write' syscall number
+      mov     rdi, 1           ; stdout
+      mov     rsi, message     ; address
+      mov     rdx, 14          ; length in bytes
+      syscall
+      ret
+  _start:
+      call hello
+      call exit
+   #+END_SRC
+
+We could omit the =ret= instruction in the subroutine =exit= because after executing the corresponding system call the program will terminate, and no more instructions will be executed anyway.
+This =ret= instruction is what we call /unreachable/, or /dead code/.
+   
+-----
+
+** Output a single character
+
+    In this section we write a subroutine =write1= to output exactly one symbol stored somewhere in memory.
+    So, =write1= accepts an address or a character and outputs it to =stdout=, not the character itself!
+  # <
+    #+BEGIN_EXPORT md
+  <p align='center'> <img width='60%'  src='./img/write1.svg' /> </p>
+    #+END_EXPORT
+
+     First, implement a subroutine to output a single character; =rdi= = *address* of character.
+     # >
+
+     #+begin_src asm
+section .text
+write1:               ; rdi = address of symbol
+  mov rsi, rdi
+  mov rax, 1          ; ID of `write` system call
+  mov rdi, 1          ; stdout
+  mov rdx, 1          ; output only one byte
+  syscall
+  ret
+     #+end_src
+
+    The picture below shows how we can output a character =b= using the =write1= subroutine:
+
+    #+INCLUDE: "common/before-image.org"
+    #+attr_latex: :width 0.5\textwidth
+    #+attr_html: :width 50%
+    {{{if-latex-else([[./img/write1.svg]],)}}}
+    #+INCLUDE: "common/after-image.org"
+We will use this subroutine in the next section to output a hexadecimal digit.
+     -----
+     # [
+** ASCII-code of a hexadecimal digit
+
+   In the next program we want to output one hexadecimal digit, the one stored in the least significant 4 bits of register =rdi=.
+   So if =rdi=0x1122334455667788= then we output =8=.
+
+   To do that we need to have a character with its code somewhere in memory and then pass the address of this character to the =write1= subroutine.
+This is achieved in two steps:
+
+1) Cut out all other hexadecimal digits. 
+   We only need the last digit; it corresponds to the least significant four bits of =rdi=.
+   To do that, we can use a bitwise AND operation with the mask =0xF=.
+   For example, if =rdi = 0x11223344556677DE= then =rdi & 0xF = 0xE=.
+   An assembly instruction =and rdi, 0xF= will do this.
+
+2) Transform the digit into its ASCII-code. 
+   This is not an arithmetic formula: for digits in range 0..9 we need to select codes from 0x30 (zero) to 0x39 (nine), but for digits in range =A..F= we need to select codes from 65_10=0x41 (letter =A=) to 70_10=0x46.
+   The easiest way of doing this is to create an array of encoded digits like that:
+
+   #+begin_src asm
+codes: db      "0123456789ABCDEF"
+   #+end_src
+
+    This way for each =i= in range from 0 to 15 the address of a byte containing an ASCII-code for this digit is =codes+i=.
+    If =rdi= contains a digit from =0x0= to =0xF= then we just have to add the address =codes= to it to get =codes+i= in =rdi=.
+   #+begin_src asm
+add rdi, codes
+   #+end_src
+
+3) Call =write1=.
+
+
+Putting it all together:
+
+   #+begin_src asm
+section .data
+codes: db      "0123456789ABCDEF"
+
+section .text
+
+; rdi = digit
+print_hex4:
+  ; cut out everything except the last digit
+  and rdi, 0xF
+  ; write(stdout, codes + rdi, 1)
+  add rdi, codes
+  call write1
+  ret
+  #+end_src
+
+For example, calling =print_hex= when =rdi = 0x1122334455667788= will output =8=.
+   -----
+
+** Unconditional jump
+
+All instructions are executed sequentially except for special jump instructions.
+Unconditional jump instruction =jmp <addr>= is equivalent[fn:2] to =mov rip, <addr>=, so the next instruction to be executed will be fetched from =addr=.
+
+The following program will loop indefinitely because the =jmp= instruction targets itself.
+   #+begin_src asm
+global _start
+
+section .text
+_start: jmp _start
+  #+end_src
+
+** Flags register
+
+When computer performs arithmetic operations the results affect the special register =rflags=.
+Each bit of this register corresponds to some characteristic of the result, for example:
+
+- Sign flag :: result is negative.
+- Zero flag :: result is zero.
+- Parity flag :: result has odd number of bits (the parity of result is irrelevant!).
+- Overflow flag :: result has an overflow into the signed bit. 
+  This happens when we add two positive numbers and the result may be interpreted as a negative integer.
+  For example:
+
+  0111111_2 + 0000001_2 = 10000001
+  
+  In decimal form it will be: 127 + 1 = -128.
+
+
+Flags are often used for conditional jumps.
+
+** Conditional jumps
+   Conditional jumps rely on contents of a special register =rflags=.
+   For each flag there is a pair of conditional jump instructions that perform jump if the corresponding flag is set or cleared.
+   For example, for the zero flag =ZF=:
+   - =jz <addr>= jumps only if zero flag is set
+   - =jnz <addr>= jumps only if zero flag is cleared.
+
+   Such instructions include also =jp=, =js=, =jns= and others.
+
+   However, most useful instructions perform jumps if an interesting combination of flags is set.
+   Suppose we have a condition "if =rax= < 42 then jump to the label =yes=".
+   If we subtract 42 from =rax= the condition "overflow flag and sign flag are different" will hold if and only if =rax= < 42.
+   In order to not think about flags, we use special instruction =jl= which literally means "jump if less":
+
+   #+begin_src asm
+      sub rax, 42
+      jl yes      ; --.
+      mov rbx, 0  ;   |
+      jmp ex      ;   |
+yes:  mov rbx, 1  ; <-'
+ex:
+   #+end_src
+
+   The instruction =jl= in fact checks the condition =OF <> SF=, but we do not have to remember this condition precisely to program in assembly.
+   There is a number of useful jump commands, we will provide some of them and then you will be able to derive the others.
+
+   
+   #+begin_src asm
+jl yes      ; jump if less, after subtraction
+jg yes      ; jump if greater, after subtraction
+
+jle yes     ; jump if less OR EQUAL, after subtraction
+jge yes     ; jump if greater OR EQUAL, after subtraction
+
+jnl yes     ; jump if not less, alias of jge
+
+je  yes     ; jump if equals, alias of jz
+   #+end_src
+
+
+We rarely need to use the destructive =sub= instruction which overwrites a register to encode conditions.
+Instead we use =cmp= which subtracts operands but does not overwrite anything; it only sets flags based on results.
+Suppose =rax = 10=, then the following code demonstrates the difference between =sub= and =cmp=:
+
+   #+begin_src asm
+              ; rax = 10
+cmp rax, 2    ; rax = 10, sets flags as if rax were 8
+sub rax, 2    ; rax = 8, sets flags according to rax = 8
+   #+end_src
+
+   So, the most common instruction pattern for jumps is:
+
+   - execute =cmp=;
+   - use one of the conditional jump instructions.
+
+
+** Comparison and signed numbers
+
+Let us start with an example.
+If we compare one-byte numbers, is 11111111_2 greater than 1?
+
+- If we interpret both numbers as _unsigned_, then 11111111_2 = 128_10 which is greater than 1.
+- If we interpret both numbers as _signed_, then 11111111_2 =-1_10 which is less than 1.
+
+So, we have to use the correct conditional jump instructions depending on whether we compare signed or unsigned numbers:
+
+    - =ja= (jump if above) / =jb= (jump if below)
+      for a jump after a comparison of *unsigned* numbers with  =cmp=.
+    - =jg= (jump if greater) / =jl= (jump if less) for signed.
+      for a jump after a comparison of *signed* numbers with  =cmp=.
+
+
+#+begin_src asm
+mov rax, 1
+cmp rax, -1
+jl yes      ; will jump
+jb yes      ; will not jump
+#+end_src
+
+
+   # <
+   Also relaxed versions: =jae= (jump if above or equal).
+   # >
+   -----
+
+   # [
+   These instructions have also relaxed versions e.g. =jae= (jump if above or equal).
+   # ]
+
+** Stack
+
+Our ="Hello, world!"= example does two things: outputs a string and exits.
+But both actions are put together in a single module.
+We want to improve our example by decomposing it into smaller modules.
+
+We already know a total of five registers:
+
+- Four general-purpose registers: =rdi=, =rsi=, =rdx=, =rax=.
+- One special register =rdi=, the program counter.
+
+One other general-purpose register =rsp= should not be used for general purposes, ironically.
+It keeps the address of the topmost element in stack during the program execution --- that is, the last element pushed to stack.
+It is called a /stack pointer/.
+
+*** Overview
+    The stack is implemented by  a register =rsp= and two machine instructions: =push= and =pop=.
+
+    - =push <what>= stores element =<what>= on top of the stack.
+      More precisely, it does two actions:
+ #+begin_src asm
+; push what
+rsp := rsp - 8
+memory value at address rsp := <what>
+ #+end_src
+
+     - =pop <where>= assigns the value of the topmost element in stack to either a memory location or a register.
+      More precisely, it does two actions:
+ #+begin_src asm
+; pop <where>
+<where> := memory value at address rsp
+rsp := rsp + 8
+ #+end_src
+
+ Some instructions also use stack implicitly, like =call= and =ret=; we will get into more details on that later.
+*** Usage
+
+  Stack is used in three situations:
+  
+      1. Save general purpose register values until we need them again.
+        Then we can pop these values back into registers:
+         #+begin_src asm
+push rdi    ; store current values of rdi/rax
+push rax    ; in stack
+
+mov rax, 42 ; new value
+mov rdi, 82 ; new valur
+...
+pop rax    ; restore rax and rdi
+pop rdi
+         #+end_src
+      2. For subroutine calls.
+         /Subroutines/ are the name we use in assembly for functions.
+         Every time we call a subroutine we have to save the current value of the program counter =rip= so that we know where to return.
+         Stack seems like a good fit because of how the lifetimes of subroutines work:
+         - In stack, the last element to be pushed will be the first one to be popped.
+         - In procedure calls, the last subroutine to be called will be the first to complete.
+      3. For saving program state.
+         The hardware stack is used to save all registers when the program gets interrupted or performs a system call.
+         Both these events lead to a change of context: before the event CPU was executing the program, then it switches to the operating system which handles the interrupt or executes a system call.
+         After that it is necessary to restore the values of registers as they were in the program; they will be automatically restored from stack.
+
+      -----
+** Register output
+
+   # [
+   Now we will reuse the subroutine =print_hex4= to output the full 64-bit value of the register =rdi=.
+   How to do that?
+
+   Let us take an exemplary 8-byte value of =0x1122334455667788=.
+   This value has 16 hexadecimal digits, each byte corresponds to two hexadecimal digits.
+   We are going to shift the number to the right by 60, 56..., 4, 0 bits:
+   # ]
+
+   # <
+   Suppose we want to output =1122334455667788=.
+
+   Shift in a loop and invoke =print_hex4=
+   # >
+   #+begin_example
+1122334455667788 >> 60 = 1
+1122334455667788 >> 56 = 11
+1122334455667788 >> 52 = 112
+...
+1122334455667788 >> 4 = 112233445566778
+1122334455667788 >> 0 = 1122334455667788
+   #+end_example
+   -----
+   # [
+   Each time it suffices to call =print_hex4= on the shifted value.
+
+   The rest of the code is saving and restoring register values from stack.
+
+   #+BEGIN_COMMENT
+TODO   Need to explain better.
+   #+END_COMMENT
+
+   # ]
+   #+BEGIN_SRC asm
+  print_hex64:
+    mov rcx, 64
+  .loop:
+    push rdi           ; push rdi into stack
+    sub  rcx, 4        ; rcx changes as follows: 60, 56, 52... 4, 0
+    sar  rdi, cl       ; arithmetic shift right
+    push rcx
+    call print_hex4
+    pop  rcx
+    pop  rdi
+    cmp  rcx, 0       ; compare rcx with 0 
+    jnz .loop         ; jump if ZF != 0 (that is if rcx was non-zero)
+    ret
+
+  _start:
+    mov rdi, 1122334455667788h
+    call print_hex64
+    call exit
+   #+END_SRC
+
+   -----
+
+* Implementing Finite State Machines
+# <
+  - If the task is easy to solve as FSM, do it.
+  - Translating FSM to assembly is always easy:
+
+    1. Create a label for each state.
+    2. In each state first find out the current event.
+    3. Depending on event, react and jump to another event.
+
+# >
+
+#+begin_comment
+#+end_comment
+# [
+In this section we will see a practical example of how a problem that seems hard at a first glance becomes much easier to solve if we express its solution in an appropriate model of computation.
+
+Suppose our task is to implement a program in assembly for parsing a string.
+If the string is a textual representation of a signed number, we answer /yes/, otherwise we answer /no/.
+
+Writing a solution straight in pure assembly demands time and most importantly concentration.
+It is safe to say that parsing numbers is not a task for which assembly language is particularly convenient.
+How can we decrease the complexity of writing in assembly?
+
+
+We know that a large class of problems is easy to solve using FSMs.
+Now we will show that after designing a FSM to solve one such problem, it becomes trivial to implement this machine in an imperative programming language such as assembly or C.
+This is what we mean by reducing the complexity of problem by selecting an appropriate model of computation.
+
+# ]
+  -----
+
+** Example
+   # <
+   Does the input string contain textual representation of a signed number? (yes/no)
+# >
+
+# [
+We will take the following FSM as an example.
+It checks if the input string contains textual representation of a signed number.
+
+#+INCLUDE: "common/before-image.org"
+#+attr_latex: :width 0.60\textwidth
+#+attr_html: :width 60%
+{{{if-latex-else([[./img/fsm-1.svg]],)}}}
+#+INCLUDE: "common/after-image.org"
+# ]
+
+
+# <
+#+BEGIN_EXPORT md
+<p align='center'> <img width='90%'  src='./img/fsm-1.svg' /> </p>
+#+END_EXPORT
+# >
+
+
+# [
+To start encoding FSM in assembly, we get rid of the undefined behavior: every state should have transition rules for any possible input symbol.
+We make the FSM total by adding an "error" state $E$.
+If we end up in this state, the string is not a signed number, so the answer to the original question is /no/.
+
+# ]
+-----
+# <
+** Total version
+# >
+# [
+#+INCLUDE: "common/before-image.org"
+#+attr_latex: :width 0.60\textwidth
+#+attr_html: :width 60%
+{{{if-latex-else([[./img/fsm-3.svg]],)}}}
+#+INCLUDE: "common/after-image.org"
+# ]
+
+
+# <
+#+BEGIN_EXPORT md
+<p align='center'> <img width='90%'  src='./img/fsm-3.svg' /> </p>
+#+END_EXPORT
+# >
+-----
+
+# <
+** Tweak
+   Stop on null-terminator.
+# >
+# [
+
+We will tweak this FSM in one more way: we will add a transition to the state $D$ when the string is over, that is, when we encounter a null-terminator.
+If the string contains an optional sign, then a sequence of digits, then null terminator, only then we answer /yes/ to the original question.
+
+
+#+INCLUDE: "common/before-image.org"
+#+attr_latex: :width 0.60\textwidth
+#+attr_html: :width 60%
+{{{if-latex-else([[./img/fsm-4.svg]],)}}}
+#+INCLUDE: "common/after-image.org"
+# ]
+
+
+# <
+#+BEGIN_EXPORT md
+<p align='center'> <img width='90%'  src='./img/fsm-4.svg' /> </p>
+#+END_EXPORT
+# >
+
+-----
+
+# <
+** Translation
+# >
+# [
+We start the implementation by defining what are events and how do we consume them.
+For this task, suppose =rdi= points to a string of characters and we consume them one at a time.
+An event consumption will then happen in two steps:
+# ]
+# <
+Consuming events:
+ # >
+#+begin_src asm
+
+  ; step 1:  Read one byte from an address stored in =rdi=.
+  mov al, [rdi] ; al is the least significant byte of RAX
+  ; step 2:  Increase `rdi` so that it points at the next character
+  add rdi, 1
+#+end_src
+
+# [
+
+ Then we encode each state separately as follows:
+ # ]
+ # <
+For each state:
+ # >
+    1. Create a label.
+    2. Consume the input event.
+    3. Match the input event with transition rules and jump to corresponding state.
+
+       -----
+
+      For example, for the state $B$:
+
+    #+begin_src asm
+  ; 1. label
+STATE_B:
+  ; 2. consume a character from string.
+  mov al, [rdi]
+  add rdi, 1
+
+  ; 3. Match event with rules
+
+  cmp al, '9'  ; if event is 0..9 jump to C
+  ja STATE_E   ; otherwise jump to E
+  cmp al, '0'
+  jb STATE_E
+  jmp STATE_C
+ #+end_src
+  # [
+
+ Once we have encoded all the states like this, it is convenient to isolate them inside a function.
+ Here is a minimal working example for this FSM; the result of launching function =check_number= is provided via the program return code:
+
+
+ #+INCLUDE: "listings/fsm-final.asm" src asm
+
+
+ This program may seem intimidating at first but it is actually composed of the similar very simple blocks.
+ Thanks to chosing an appropriate model of computation, drawing a diagram and then mechanically translating code to assembly we have created a clean, correct and fast program.
+    # ]
+
+
+# [
+
+ -----
+* Conclusion
+  :PROPERTIES:
+  :UNNUMBERED: notoc
+  :END:
+
+  Important but not in the talk:
+
+  - Endianness
+  - Calling conventions (next time)
+# ]
+
+[fn:three-tribes-programmers] https://josephg.com/blog/3-tribes/
+[fn:1] RAM have many variations which are all Turing-complete and give the same estimation for the algorithms' complexity.
+[fn:2] This action is impossible to encode using =mov= command. Check Intel docs to verify that such instruction is not implemented.
+[fn:3] More precisely, GNU/Linux is a kernel of an operating system, on top of which many operating systems are built.
+
+# ]

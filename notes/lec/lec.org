@@ -1,0 +1,24 @@
+#+INCLUDE: "common/org-header.org"
+#+LATEX_CLASS: book-noparts
+#+TITLE: Programming languages and computer systems (draft)
+# #+OPTIONS: H:3
+* Introduction to the computer systems architecture 
+#+INCLUDE: "lec-1-en.org"  :lines "7-" :minlevel 2
+* Interpreter (functional component). Models of computation.
+#+INCLUDE: "lec-2-en.org"  :lines "7-" :minlevel 2
+* Interpreter. Assembly.
+#+INCLUDE: "lec-3-en.org"  :lines "7-" :minlevel 2
+* Modularity and abstraction
+#+INCLUDE: "lec-4-en.org"  :lines "7-" :minlevel 2
+
+* Weak and enforced modularity
+#+include: "lec-enforced-modularity-en.org" :lines "2-" :minlevel 2
+
+#+include: "lec-client-service-en.org" :lines "2-" :minlevel 2
+
+* Virtualization of memory and CPU
+#+INCLUDE: "lec-5-en.org"  :lines "8-" :minlevel 2
+* Virtualization
+  #+include: "lec-virtualization-en.org" :lines "3-" :minlevel 2
+* Linking
+#+INCLUDE: "lec-7-en.org"  :lines "8-" :minlevel 2

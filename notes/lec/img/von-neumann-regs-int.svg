@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="130.23886mm"
+   height="54.070492mm"
+   viewBox="0 0 130.23886 54.070492"
+   version="1.1"
+   id="svg1404"
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   sodipodi:docname="von-neumann-regs-int.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1406"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="0.73851712"
+     inkscape:cx="-558.55171"
+     inkscape:cy="261.3345"
+     inkscape:window-width="1920"
+     inkscape:window-height="1015"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1401" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-253.01809,-79.368858)">
+    <rect
+       style="fill:#ffffff;stroke:#000000;stroke-width:0.283162;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0"
+       id="rect1481"
+       width="31.654642"
+       height="14.014853"
+       x="298.54416"
+       y="115.27387"
+       inkscape:export-xdpi="166.96001"
+       inkscape:export-ydpi="166.96001" />
+    <circle
+       style="fill:#ffffff;stroke:#000000;stroke-width:0.4;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0"
+       id="circle1483"
+       cx="267.03259"
+       cy="122.01403"
+       r="11.22532"
+       inkscape:export-xdpi="166.96001"
+       inkscape:export-ydpi="166.96001" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.246544;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 298.40228,122.2813 H 278.27582"
+       id="path1485"
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="166.96001"
+       inkscape:export-ydpi="166.96001" />
+    <rect
+       y="115.27387"
+       x="351.46072"
+       height="14.014853"
+       width="31.654642"
+       id="rect1491"
+       style="fill:#ffffff;stroke:#000000;stroke-width:0.283162;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0"
+       inkscape:export-xdpi="166.96001"
+       inkscape:export-ydpi="166.96001" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path1493"
+       d="M 351.31898,122.2813 H 331.19252"
+       style="fill:none;stroke:#000000;stroke-width:0.246544;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:export-xdpi="166.96001"
+       inkscape:export-ydpi="166.96001" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 266.93143,110.59423 V 85.836786"
+       id="path1495"
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="166.96001"
+       inkscape:export-ydpi="166.96001" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.29167px;line-height:1.25;font-family:monospace;-inkscape-font-specification:monospace;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="252.5683"
+       y="83.379944"
+       id="text1499"
+       inkscape:export-xdpi="166.96001"
+       inkscape:export-ydpi="166.96001"><tspan
+         sodipodi:role="line"
+         id="tspan1497"
+         x="252.5683"
+         y="83.379944"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:sans-serif;stroke-width:0.264583">внешний мир</tspan></text>
+    <rect
+       style="fill:#ffffff;stroke:#000000;stroke-width:0.283162;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0"
+       id="rect1548"
+       width="31.654642"
+       height="14.014853"
+       x="298.54416"
+       y="115.27387"
+       inkscape:export-xdpi="166.96001"
+       inkscape:export-ydpi="166.96001" />
+    <text
+       id="text1552"
+       y="124.20137"
+       x="308.79224"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:5.29167px;line-height:1.25;font-family:monospace;-inkscape-font-specification:monospace;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       xml:space="preserve"
+       inkscape:export-xdpi="166.96001"
+       inkscape:export-ydpi="166.96001"><tspan
+         style="stroke-width:0.264583"
+         y="124.20137"
+         x="308.79224"
+         id="tspan1550"
+         sodipodi:role="line">reg</tspan></text>
+  </g>
+</svg>

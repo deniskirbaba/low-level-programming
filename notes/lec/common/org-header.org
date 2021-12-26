@@ -1,0 +1,53 @@
+#+OPTIONS: ':t
+# #+OPTIONS: toc:3
+#+OPTIONS: tasks:nil
+
+#+LATEX_COMPILER: xelatex
+# #+LATEX_CLASS: book-noparts
+
+# #+latex_header: \usepackage[a5paper]{geometry}
+#+latex_header: \usepackage[letterpaper]{geometry}
+# #+latex_header: \usepackage[utf8x]{inputenc}
+# #+latex_header: \usepackage[T2A]{fontenc}
+# #+latex_header: \usepackage[russian,english]{babel}
+# #+latex_header: \usepackage{fullpage}
+# #+latex_header: \usepackage{svg}
+# #+latex_header: \usepackage{bookmark}
+# #+latex_header: \usepackage[unicode]{hyperref}
+
+#+latex_header: \usepackage{svg}
+# #+latex_header: \usepackage{fullpage}
+#+latex_header: \usepackage{fontspec}
+#+latex_header: \defaultfontfeatures{Ligatures=TeX}
+#+latex_header: \setmainfont{Liberation Serif}
+#+latex_header: \setsansfont{Liberation Sans}
+#+latex_header: \setmonofont{Source Code Pro}
+#+latex_header: \newfontfamily\cyrillicfonttt{Source Code Pro}
+#+latex_header: \usepackage{polyglossia}
+#+latex_header: \newfontfamily\cyrillicfont{Liberation Serif}
+#+latex_header: \newfontfamily\cyrillicfontsf{Liberation Sans}
+#+latex_header: \setdefaultlanguage{english}
+#+latex_header: \setotherlanguage{russian}
+#+latex_header: \definecolor{smagenta}{HTML}{D33682}
+#+latex_header: \definecolor{sbase01}{HTML}{586E75}
+#+latex_header: \definecolor{sred}{HTML}{DC322F}
+#+latex_header: \definecolor{sorange}{HTML}{CB4B16}
+#+latex_header: \definecolor{sviolet}{HTML}{6C71C4}
+#+latex_header: \definecolor{sbase0}{HTML}{839496}
+#+latex_header: \usepackage{listings}
+#+latex_header: \lstdefinestyle{sayon}{mathescape=false, upquote=true, texcl=false, showstringspaces=false, tabsize=3, extendedchars=true, breaklines=false, basicstyle=\ttfamily , identifierstyle={\color{black}}, keywordstyle=[1]{\color{smagenta}}, keywordstyle=[2]{\color{sbase01}}, keywordstyle=[3]{\color{sred}}, keywordstyle=[4]{\color{sorange}}, stringstyle={\color{sviolet}}, commentstyle={\color{sbase0}},inputencoding=utf8/cp866,keepspaces=true, columns=fixed}[keywords,comments,strings]
+#+latex_header: \lstset{style=sayon}
+#+latex_header: \usepackage{common/lstnasm}
+#+latex_header: \svgsetup{inkscapelatex=true}
+
+#+MACRO: if-latex-else-header (eval (if (org-export-derived-backend-p org-export-current-backend 'latex) "#+OPTIONS: toc:3" "#+OPTIONS: toc:nil"))
+{{{if-latex-else-header}}}
+
+#+MACRO: if-latex-else (eval (if (or (org-export-derived-backend-p org-export-current-backend 'latex) (org-export-derived-backend-p org-export-current-backend 'html)) $1 $2))
+  
+#+MACRO: newline    src_emacs-lisp[:results raw]{"\n"}
+#+MACRO: before-image #+begin_export latex {{{newline}}} \svgsetup{inkscapelatex=false} {{{newline}}} #+end_export {{{newline}}} #+attr_latex: :width 0.3\textwidth  {{{newline}}} #+attr_html: :width 30% {{{newline}}}
+
+#+MACRO: after-image #+begin_export latex {{{newline}}} \svgsetup{inkscapelatex=true} {{{newline}}} #+end_export
+#+AUTHOR: Igor Zhirkov
+ #+EMAIL: igorjirkov@gmail.com

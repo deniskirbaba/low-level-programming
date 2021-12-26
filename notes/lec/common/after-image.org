@@ -1,0 +1,3 @@
+#+begin_export latex
+    \svgsetup{inkscapelatex=true}
+    #+end_export

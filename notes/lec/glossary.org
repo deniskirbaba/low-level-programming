@@ -1,0 +1,26 @@
+- ASCII-table :: ?
+- Abstraction :: ?
+- Client (clients and services) :: ?
+- Client machine (virtualization) :: ?
+- Dead code :: ?
+- Decomposition :: ?
+- Directive :: ?
+- Enforced modularity :: ?
+- Function :: ?
+- Functional decomposition :: ?
+- Host machine (virtualization) :: ?
+- Interface :: ?
+- Modularity :: ?
+- Module :: ?
+- Process :: ?
+- Register :: ?
+- Signature :: ?
+- Structural decomposition :: ?
+- Subroutine :: ?
+- System :: ?
+- System environment :: ?
+- Thread :: ?
+- Unicode :: ?
+- Unreachable code :: ? 
+- Virtualization :: ?
+- Weak modularity :: ?

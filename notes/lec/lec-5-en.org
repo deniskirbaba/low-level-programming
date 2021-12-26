@@ -1,0 +1,322 @@
+#+INCLUDE: "common/org-header.org"
+#+LANGUAGE: en
+#+TITLE: Chapter 5. Enforced modularity
+
+# <
+* Enforced modularity
+# >
+
+  # [
+
+  We do not write huge programs in a single gargantuan function, because such function will be impossible to read, debug or modify.
+  Instead, we decompose programs into subprograms, writing small functions and combining them until we craft the system we need.
+  
+  We start with the trivial functions, then we compose them into more high-level functions, then we compose these compositions and so on.
+  As we progress through the levels of hierarchy towards functions that /do more/ by composing functions that /do less/ we actually multiply lines of code.
+  It is especially visible when we adopt this approach to write tiny programs.
+
+  We may get lost and miss hidden interactions
+
+  
+  Let us restate it in a systems language.
+  As we have coined in the previous parts, modularity is a good approach to building complex computer systems.
+  Decomposing the system and building each module separately reduces the complexity we have to face at a time.
+  Having created multiple models we put them together into a system more complex than any of them.
+  Once we connect models we form a layer of connection between them, where emergent properties are born.
+  While modularization is simplifying the system, interactions between modules, on the contrary, increase its complexity.
+
+  Moreover, when we put modules together they may start interacting in unexpected ways outside the interfaces.
+  
+  
+  Ideas:
+  - modularity to reduce complexity
+  - modules interact through layer of connections 
+  - layer of connections is where the emergent properties are born, it may be non-trivial
+  - what happens in the layer when there is an error in a module? 
+  - it may so happen that modules find other ways of interacting, will errors propagate these ways?
+
+
+
+
+
+  Developing complex computer systems is hard and we can not expect developers to be perfect.
+  Building the system from
+  Dividing system into modules and connecting them
+  is a part of a good approach to reduce complexity.
+
+  However when we collect modules into a bigger system we form a new layer of functioning where emergent properties are born.
+  In this case, the complexity comes from the network exchange between two programs.
+  This layer brings us an unwanted additional complexity that we would like minimize.
+  
+  Imagine two programs that are interacting through a network connection.
+  It makes sense to program them separately and then connect into a functioning system.
+
+  At the same time we will surely make some errors in the modules.
+  Without an extra thought these errors may too easily propagate from one module to another through this layer of interaction.
+  In our example one of the programs may produce an incorrectly formatted packet; then another program will incorrectly parse it and silently get garbage values from it; and from this point on, anything can happen.
+  Tracing the initial error will not be easy!
+
+  In the context of our course, such situation may happen when we do not respect the calling conventions, or when multiple applications try to coexist in the same memory space and may rewrite each other, or when applications have direct access to external devices.
+  
+   
+
+  # ]
+
+  -----
+ 
+* References
+  :PROPERTIES:
+  :UNNUMBERED: notoc
+  :END:
+
+  - "Low-Level Programming": Chapters 3, 4.
+  - "Principles of Computer System Design": Chapters 4, 5.
+
+
+  -----
+# <
+* Weak and enforced modularity
+
+  -----
+# >
+
+* Calling conventions
+
+   # <
+Procedures are modules.
+
+Procedure calls only work if:
+
+- Correct types
+- Correct number of arguments
+- Arguments in the right registers
+- Precious caller-saved registers are saved/restored
+- The function does not change callee-saved registers.
+  
+/Weak modularity/ does not prevent error propagation.
+
+# >
+-----
+
+# <
+* Calls, modules and interfaces
+
+   Weak modularity:
+   
+- Allowed interactions are limited to interfaces.
+- Interactions outside interfaces /are possible/ so implementation errors can propagate through them.
+
+# >
+
+# [
+
+- Allowed vs restricted.
+- Convention vs "can not do any other way"
+- Enforcing is external
+
+# ]
+-----
+
+
+
+# <
+The way we see procedures, failure of one leads to failure of whole system.
+
+Includes OS and other running applications, if any.
+
+# >
+
+
+-----
+
+# <
+* Fate sharing
+
+   If one module fails, the caller fails too.
+   - stuck in a loop --- the caller will never get control back.
+   - function crashed --- the caller will never get control back.
+
+   Fate sharing is a sign of weak modularity.
+
+   Parallel computing --- every process is a module, requires isolation.
+  
+# >
+
+-----
+* Enforced modularity
+
+
+# <
+
+Externally enforced.
+
+Put borders between modules to limit error propagation.
+
+Boundaries may be softer or harder.
+
+Shared state is a breach (global variables, stack...)
+
+
+# >
+
+-----
+
+# <
+* Clients and services
+
+  -----
+# >
+
+
+* Client-service architecture
+
+  # <
+
+  Limit interaction to message passing.
+
+
+  #+BEGIN_EXPORT md
+  <p align='center'> <img width='30%'  src='./img/client-service.svg' /> </p>
+  #+END_EXPORT
+
+  
+  
+  # >
+
+  # [
+
+  #+INCLUDE: "common/before-image.org"
+  #+attr_latex: :width 0.4\textwidth
+  #+attr_html: :width 40%
+  {{{if-latex-else([[./img/client-service.svg]],)}}}
+  #+INCLUDE: "common/after-image.org"
+  # ]
+
+-----
+
+** Key properties
+
+   - No shared state
+
+     Ideal: one computer per module.
+     
+  #+BEGIN_EXPORT md
+  <img width='30%'  src='./img/client-service.svg' /> 
+  #+END_EXPORT
+
+  - Arguments and results are marshaled (and subject to checks).
+  - Clients in control, less fate sharing
+  - Explicit interfaces
+
+
+-----
+
+*** No shared state
+
+    Good for limiting interactions.
+
+    Bad when we /need/ interactions.
+    
+-----
+
+*** Marshaling
+ Queries and results are marshaled (and subject to checks).
+ 
+ If every interaction is a message, what is the format?
+
+ - Little/Big endian
+ - Global variables
+ - Pointers
+  
+
+    -----
+*** Fate sharing
+
+    
+  Clients in control
+
+  Fate sharing is not always bad.
+
+  - sqrt(negative integer)
+  - It is not about returning invalid results or signaling an error, it is about failure of the module.
+
+    
+
+
+-----
+** The right level of granularity
+
+   System has multiple levels of hierarchy.
+   
+- Do we want to protect from fate sharing?
+- Our need in shared state
+
+
+Functions are too fine-grained for that.
+
+- constantly working on the same data.
+- if we fail the program fails.
+  
+  
+Processes are the right level.
+
+- less interactions.
+- conceptually independent, should not share fate.
+
+
+-----
+** Variants
+   
+   -  one client --- multiple services (fault tolerance)
+   -  one service -- multiple clients  (sharing costs)
+   -  service is sometimes a client (intermediary email-server)
+
+
+ -----
+** Extensions
+
+   - Remote procedure calls
+   - Trusted intermediary
+
+     -----
+*** Remote Procedure Calls
+
+    - Does not require network!!!
+      
+    - Stubs hide marshaling and exchange.
+   
+    - Generating stubs can be automated.
+
+    - Caller is forced to perform checks.
+
+    - Reduce fate sharing (ask for =sqrt(-42)= --- module fails but caller does not).
+      
+   
+    Leaky abstraction:
+
+    - introduces new failures
+    - slower
+    -----
+    
+More complexity --- what if we have got no response?
+
+Either failure before call (no action and no response) or failure after call (action performed but no response).
+
+Need to think about strategies depending on the effects:
+
+- At least once (keep trying). May execute many times.
+- At most once (try once, error on timelimit). Better with non-idempotent transformations.
+- Exactly once (requires bookkeeping).
+
+
+    -----
+*** Trusted intermediary
+
+
+    Trusted third party among suspicious clients.
+
+    Example: file server.
+
+    Clients interact, but failure of one should not affect others.
+
+    Allows for asynchronous interaction.

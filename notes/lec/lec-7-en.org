@@ -1,0 +1,97 @@
+#+INCLUDE: "common/org-header.org"
+#+LANGUAGE: en
+#+TITLE: Chapter 7. Linking, composition
+
+# <
+* Linking, composition
+# >
+
+-----
+
+
+* Compilation pipeline
+
+# <
+ 1) Compiling is not trivial.  
+
+    Random Access Memory, linear addresses.  
+
+    Challenge: carefully place code and data in memory.
+
+
+ 2) Decomposition is good
+
+# >
+
+# [
+ 1) Compiling is not trivial.  
+
+    We have Random Access Memory, linear addresses.  
+
+    Challenge: carefully placing code and data in memory.
+
+
+ 2) It is good to decompose, easier
+ 
+# ]
+
+-----
+
+
+# <
+
+#+begin_src c
+int x;
+int* y = &x;
+void f() { x = x + 1; }
+#+end_src
+
+
+# >
+
+# [
+#+INCLUDE: "common/before-image.org"
+#+attr_latex: :width 0.40\textwidth
+#+attr_html: :width 40%
+{{{if-latex-else([[./img/relocation-1.png]],)}}}
+#+INCLUDE: "common/after-image.org"
+# ]
+
+
+# <
+#+BEGIN_EXPORT md
+<p align='center'> <img width='17%'  src='./img/relocation-1.png'/> </p>
+#+END_EXPORT
+# >
+-----
+
+# <
+- Where to place =x= and =y=?
+- Code and data require knowing addresses. 
+- Once an address is picked, it is difficult to change.
+# >
+
+
+-----
+* Separate compilation
+
+
+
+
+
+-----
+
+# <
+- Linking, relocation.
+  
+- ELF file format.
+  Relocatable, executable, shared files.
+  
+- Headers. Sections: data, text, rodata, bss, line, symtab.
+  
+- Sections before and after relocation.
+  
+- Static and dynamic linking.
+- Segments in ELF.
+- Roles of compiler and linker.
+# >

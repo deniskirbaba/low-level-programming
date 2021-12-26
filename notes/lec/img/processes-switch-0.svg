@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="155.39444mm"
+   height="52.888821mm"
+   viewBox="0 0 155.39444 52.888821"
+   version="1.1"
+   id="svg21460"
+   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
+   sodipodi:docname="processes-switch-0.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview21462"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.8519889"
+     inkscape:cx="340.98477"
+     inkscape:cy="101.78247"
+     inkscape:window-width="1920"
+     inkscape:window-height="980"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs21457">
+    <marker
+       style="overflow:visible"
+       id="marker15046"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="Arrow1Lend"
+       inkscape:isstock="true">
+      <path
+         transform="matrix(-0.8,0,0,-0.8,-10,0)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         id="path15044" />
+    </marker>
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-194.6851,-107.71069)">
+    <text
+       xml:space="preserve"
+       style="font-size:4.57925px;line-height:1.25;font-family:sans-serif;stroke-width:0.190802"
+       x="216.83148"
+       y="116.73412"
+       id="text20079"><tspan
+         sodipodi:role="line"
+         id="tspan20077"
+         style="font-size:4.57925px;stroke-width:0.190802"
+         x="216.83148"
+         y="116.73412">1</tspan></text>
+    <circle
+       style="fill:none;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none"
+       id="circle20081"
+       cx="218.43419"
+       cy="115.27714"
+       r="7.0664458" />
+    <text
+       xml:space="preserve"
+       style="font-size:4.57925px;line-height:1.25;font-family:sans-serif;stroke-width:0.190802"
+       x="270.25601"
+       y="116.73412"
+       id="text20085"><tspan
+         sodipodi:role="line"
+         id="tspan20083"
+         style="font-size:4.57925px;stroke-width:0.190802"
+         x="270.25601"
+         y="116.73412">2</tspan></text>
+    <circle
+       style="fill:none;stroke:#000000;stroke-width:0.191102"
+       id="circle20087"
+       cx="271.8587"
+       cy="115.27714"
+       r="7.0664458" />
+    <text
+       xml:space="preserve"
+       style="font-size:4.57925px;line-height:1.25;font-family:sans-serif;text-align:start;text-anchor:start;stroke-width:0.190802"
+       x="241.63574"
+       y="154.8945"
+       id="text20091"><tspan
+         sodipodi:role="line"
+         id="tspan20089"
+         style="font-size:4.57925px;text-align:start;text-anchor:start;stroke-width:0.190802"
+         x="241.63574"
+         y="154.8945">OS</tspan></text>
+    <circle
+       style="fill:none;stroke:#000000;stroke-width:0.191102"
+       id="circle20093"
+       cx="245.14644"
+       cy="153.43752"
+       r="7.0664458" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.188637px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker15046)"
+       d="m 223.12006,120.56645 18.03175,27.04202"
+       id="path20095" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.198435;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.198435, 0.595305;stroke-dashoffset:0;stroke-opacity:1"
+       d="M 194.6851,133.34388 H 339.51081"
+       id="path20103" />
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.190802"
+       x="296.38364"
+       y="128.82721"
+       id="text20107"><tspan
+         sodipodi:role="line"
+         id="tspan20105"
+         style="font-size:4.23333px;stroke-width:0.190802"
+         x="296.38364"
+         y="128.82721">User mode (unprivileged)</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.190802"
+       x="296.38364"
+       y="140.27533"
+       id="text20111"><tspan
+         sodipodi:role="line"
+         id="tspan20109"
+         style="font-size:4.23333px;stroke-width:0.190802"
+         x="296.38364"
+         y="140.27533">Kernel mode (privileged)</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52778px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="229.00508"
+       y="121.80692"
+       id="text1462"
+       transform="rotate(0.83414129)"><tspan
+         sodipodi:role="line"
+         style="font-size:3.52778px;stroke-width:0.264583"
+         x="229.00508"
+         y="121.80692"
+         id="tspan9908">Timer interrupt</tspan></text>
+  </g>
+</svg>

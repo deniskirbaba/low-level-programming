@@ -1,0 +1,852 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="332.48758mm"
+   height="169.8403mm"
+   viewBox="0 0 332.48757 169.8403"
+   version="1.1"
+   id="svg79796"
+   inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
+   sodipodi:docname="context-switch.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview79798"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="0.65477693"
+     inkscape:cx="549.04195"
+     inkscape:cy="403.95437"
+     inkscape:window-width="1920"
+     inkscape:window-height="980"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs79793">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient132818-7">
+      <stop
+         style="stop-color:#28220b;stop-opacity:1;"
+         offset="0"
+         id="stop132814" />
+      <stop
+         style="stop-color:#87aade;stop-opacity:1"
+         offset="1"
+         id="stop132816" />
+    </linearGradient>
+    <marker
+       style="overflow:visible"
+       id="marker125876"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="Arrow1Lend"
+       inkscape:isstock="true">
+      <path
+         transform="matrix(-0.8,0,0,-0.8,-10,0)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         id="path125874" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       id="Arrow1Lend"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="Arrow1Lend"
+       inkscape:isstock="true">
+      <path
+         transform="matrix(-0.8,0,0,-0.8,-10,0)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         id="path32299" />
+    </marker>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient132818-7"
+       id="linearGradient132568"
+       x1="143.65102"
+       y1="154.28223"
+       x2="143.65102"
+       y2="206.8898"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(28.214132,-83.810785)">
+    <rect
+       style="fill:#ffd5d5;fill-opacity:1;stroke:#acc936;stroke-width:0.667655;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.443137"
+       id="rect143911"
+       width="331.74838"
+       height="101.42184"
+       x="-27.880304"
+       y="142.80803" />
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="-22.426531"
+       y="109.93401"
+       id="text86122"><tspan
+         sodipodi:role="line"
+         id="tspan86120"
+         style="stroke-width:0.264583"
+         x="-22.426531"
+         y="109.93401">Program 1 (user)</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="-22.426531"
+       y="152.26736"
+       id="text86314"><tspan
+         sodipodi:role="line"
+         id="tspan86312"
+         style="stroke-width:0.264583"
+         x="-22.426531"
+         y="152.26736">Program 1 (kernel)</tspan></text>
+    <path
+       style="fill:#f9f9f9;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 56.571429,89.302041 5.859182,-5.05102 -0.202038,7.071429 7.879591,-1.414286 4.444899,2.62653 6.061223,5.455102 -7.879591,4.646934 -2.42449,5.05102 -5.05102,-3.23265 -7.475511,2.02041 -4.646938,-2.62653 -11.71837,0.60612 -1.010202,-4.24285 -2.62653,-7.677556 9.091835,-1.616327 -2.020409,-6.869387 z"
+       id="path33534" />
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="43.539795"
+       y="98.643555"
+       id="text91749"><tspan
+         sodipodi:role="line"
+         id="tspan91747"
+         style="stroke-width:0.264583"
+         x="43.539795"
+         y="98.643555">Timer interrupt</tspan></text>
+    <rect
+       style="fill:#ffffff;stroke:#000000;stroke-width:0.357686;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect15605"
+       width="21.762722"
+       height="5.5994496"
+       x="54.820511"
+       y="161.38225" />
+    <rect
+       style="fill:#ffffff;stroke:#000000;stroke-width:0.357686;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect24717"
+       width="21.762722"
+       height="5.5994496"
+       x="54.820511"
+       y="156.09058" />
+    <rect
+       style="fill:#ffffff;stroke:#000000;stroke-width:0.357686;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect24723"
+       width="21.762722"
+       height="5.5994496"
+       x="54.820511"
+       y="166.67392" />
+    <rect
+       style="fill:#aade87;stroke:#000000;stroke-width:0.357686;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect24729"
+       width="21.762722"
+       height="5.5994496"
+       x="54.820511"
+       y="171.96559" />
+    <rect
+       style="fill:#aade87;stroke:#000000;stroke-width:0.357686;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect24735"
+       width="21.762722"
+       height="5.5994496"
+       x="54.820511"
+       y="177.25726" />
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="57.278572"
+       y="192.15564"
+       id="text24739"><tspan
+         sodipodi:role="line"
+         id="tspan24737"
+         style="stroke-width:0.264583"
+         x="57.278572"
+         y="192.15564" /></text>
+    <rect
+       style="fill:#aade87;stroke:#000000;stroke-width:0.357686;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect24741"
+       width="21.762722"
+       height="5.5994496"
+       x="54.820511"
+       y="182.54893" />
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="58.63044"
+       y="176.38164"
+       id="text22069"><tspan
+         sodipodi:role="line"
+         id="tspan22067"
+         style="stroke-width:0.264583"
+         x="58.63044"
+         y="176.38164">old rip</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="62.57024"
+       y="170.98895"
+       id="text24721"><tspan
+         sodipodi:role="line"
+         id="tspan24719"
+         style="stroke-width:0.264583"
+         x="62.57024"
+         y="170.98895">...</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="55.902885"
+       y="181.47128"
+       id="text24727"><tspan
+         sodipodi:role="line"
+         id="tspan24725"
+         style="stroke-width:0.264583"
+         x="55.902885"
+         y="181.47128">old rflags</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="58.933506"
+       y="186.86397"
+       id="text24733"><tspan
+         sodipodi:role="line"
+         id="tspan24731"
+         style="stroke-width:0.264583"
+         x="58.933506"
+         y="186.86397">old rsp</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="57.379593"
+       y="175.6745"
+       id="text28275"><tspan
+         sodipodi:role="line"
+         id="tspan28273"
+         style="stroke-width:0.264583"
+         x="57.379593"
+         y="175.6745" /></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="20.002041"
+       y="161.75746"
+       id="text31589"><tspan
+         sodipodi:role="line"
+         id="tspan31587"
+         style="stroke-width:0.264583"
+         x="20.002041"
+         y="161.75746">Kernel stack for</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="20.002041"
+         y="167.04912"
+         id="tspan32179">Program 1</tspan></text>
+    <path
+       style="fill:#aade87;fill-opacity:1;stroke:#abc837;stroke-width:0.665;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+       d="m 64.35,111.93061 v 41.82245"
+       id="path32294" />
+    <path
+       style="fill:#abc837;fill-opacity:1;stroke:#abc837;stroke-width:0.665;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 64.35,111.93061 H -23.032653"
+       id="path32969" />
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="-22.426531"
+       y="205.18408"
+       id="text49858"><tspan
+         sodipodi:role="line"
+         id="tspan49856"
+         style="stroke-width:0.264583"
+         x="-22.426531"
+         y="205.18408">Program 2 (kernel)</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="-22.830612"
+       y="252.77052"
+       id="text49862"><tspan
+         sodipodi:role="line"
+         id="tspan49860"
+         style="stroke-width:0.264583"
+         x="-22.830612"
+         y="252.77052">Program 2 (user)</tspan></text>
+    <rect
+       style="fill:#ffffff;stroke:#000000;stroke-width:0.357686;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect55870"
+       width="21.762722"
+       height="5.5994496"
+       x="91.862167"
+       y="156.09058" />
+    <rect
+       style="fill:#aade87;fill-opacity:1;stroke:#000000;stroke-width:0.543439;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect55872"
+       width="21.711029"
+       height="12.956133"
+       x="91.888016"
+       y="159.2914" />
+    <rect
+       style="fill:#aade87;stroke:#000000;stroke-width:0.357686;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect55874"
+       width="21.762722"
+       height="5.5994496"
+       x="91.862167"
+       y="171.96559" />
+    <rect
+       style="fill:#aade87;stroke:#000000;stroke-width:0.357686;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect55876"
+       width="21.762722"
+       height="5.5994496"
+       x="91.862167"
+       y="177.25726" />
+    <rect
+       style="fill:#aade87;stroke:#000000;stroke-width:0.357686;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect55878"
+       width="21.762722"
+       height="5.5994496"
+       x="91.862167"
+       y="182.54893" />
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="95.672096"
+       y="176.38164"
+       id="text55882"><tspan
+         sodipodi:role="line"
+         id="tspan55880"
+         style="stroke-width:0.264583"
+         x="95.672096"
+         y="176.38164">old rip</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="99.611893"
+       y="157.75981"
+       id="text55886"><tspan
+         sodipodi:role="line"
+         id="tspan55884"
+         style="stroke-width:0.264583"
+         x="99.611893"
+         y="157.75981">...</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="92.944542"
+       y="181.47128"
+       id="text55890"><tspan
+         sodipodi:role="line"
+         id="tspan55888"
+         style="stroke-width:0.264583"
+         x="92.944542"
+         y="181.47128">old rflags</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="95.975159"
+       y="186.86397"
+       id="text55894"><tspan
+         sodipodi:role="line"
+         id="tspan55892"
+         style="stroke-width:0.264583"
+         x="95.975159"
+         y="186.86397">old rsp</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="93.550667"
+       y="164.48503"
+       id="text57166"><tspan
+         sodipodi:role="line"
+         id="tspan57164"
+         style="stroke-width:0.264583"
+         x="93.550667"
+         y="164.48503">saved </tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="93.550667"
+         y="169.77669"
+         id="tspan57190">registers</tspan></text>
+    <path
+       style="fill:#abc837;fill-opacity:1;stroke:#abc837;stroke-width:0.665;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 64.35,154.28223 h 79.30102"
+       id="path62122" />
+    <text
+       xml:space="preserve"
+       style="font-size:3.52778px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="66.875511"
+       y="126.74201"
+       id="text78031"><tspan
+         sodipodi:role="line"
+         id="tspan78029"
+         style="font-size:3.52778px;stroke-width:0.264583"
+         x="66.875511"
+         y="126.74201">Switching to privileged mode</tspan><tspan
+         sodipodi:role="line"
+         style="font-size:3.52778px;stroke-width:0.264583"
+         x="66.875511"
+         y="131.15173"
+         id="tspan78033">Switching from user stack to kernel stack</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;fill:#28220b;stroke:none;stroke-width:0.264583"
+       x="82.192009"
+       y="150.31837"
+       id="text84661"><tspan
+         sodipodi:role="line"
+         id="tspan84659"
+         style="fill:#28220b;stroke:none;stroke-width:0.264583"
+         x="82.192009"
+         y="150.31837">Saving all registers</tspan></text>
+    <circle
+       style="fill:#28220b;fill-opacity:1;stroke:#28220b;stroke-width:0.126036;stroke-miterlimit:4;stroke-dasharray:0.126036, 0.756216;stroke-dashoffset:0;stroke-opacity:1"
+       id="path84809"
+       cx="101.7531"
+       cy="154.25851"
+       r="1.154922" />
+    <circle
+       style="fill:#28220b;fill-opacity:1;stroke:#28220b;stroke-width:0.126036;stroke-miterlimit:4;stroke-dasharray:0.126036, 0.756216;stroke-dashoffset:0;stroke-opacity:1"
+       id="path84809-3"
+       cx="64.046959"
+       cy="154.35887"
+       r="1.154922" />
+    <circle
+       style="fill:#28220b;fill-opacity:1;stroke:#28220b;stroke-width:0.126036;stroke-miterlimit:4;stroke-dasharray:0.126036, 0.756216;stroke-dashoffset:0;stroke-opacity:1"
+       id="path84809-6"
+       cx="64.350021"
+       cy="111.82928"
+       r="1.154922" />
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;fill:#28220b;stroke:none;stroke-width:0.264583"
+       x="135.10867"
+       y="150.31837"
+       id="text85937"><tspan
+         sodipodi:role="line"
+         id="tspan85935"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:monospace;-inkscape-font-specification:monospace;fill:#28220b;stroke:none;stroke-width:0.264583"
+         x="135.10867"
+         y="150.31837">mov cr3, &lt;PML4 for Program 2&gt;</tspan></text>
+    <circle
+       style="fill:#28220b;fill-opacity:1;stroke:#28220b;stroke-width:0.126036;stroke-miterlimit:4;stroke-dasharray:0.126036, 0.756216;stroke-dashoffset:0;stroke-opacity:1"
+       id="circle89107"
+       cx="143.55728"
+       cy="154.25851"
+       r="1.154922" />
+    <path
+       style="fill:url(#linearGradient132568);fill-opacity:1;stroke:#abc837;stroke-width:0.665;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="M 143.65102,154.28223 V 206.8898"
+       id="path89142" />
+    <path
+       style="fill:#87aade;fill-opacity:1;stroke:#87aade;stroke-width:0.6307;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 143.65102,206.8898 73.2398,0.21365"
+       id="path94865" />
+    <circle
+       style="fill:#28220b;fill-opacity:1;stroke:#28220b;stroke-width:0.126036;stroke-miterlimit:4;stroke-dasharray:0.126036, 0.756216;stroke-dashoffset:0;stroke-opacity:1"
+       id="circle93828"
+       cx="143.55728"
+       cy="207.17523"
+       r="1.154922" />
+    <rect
+       style="fill:#ffffff;stroke:#000000;stroke-width:0.357686;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect93830"
+       width="21.762722"
+       height="5.5994496"
+       x="176.52888"
+       y="215.88644" />
+    <rect
+       style="fill:#ffffff;stroke:#000000;stroke-width:0.357686;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect93832"
+       width="21.762722"
+       height="5.5994496"
+       x="176.52888"
+       y="210.59477" />
+    <rect
+       style="fill:#ffffff;stroke:#000000;stroke-width:0.357686;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect93834"
+       width="21.762722"
+       height="5.5994496"
+       x="176.52888"
+       y="221.17812" />
+    <rect
+       style="fill:#87aade;stroke:#000000;stroke-width:0.357686;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect93836"
+       width="21.762722"
+       height="5.5994496"
+       x="176.52888"
+       y="226.46979" />
+    <rect
+       style="fill:#87aade;stroke:#000000;stroke-width:0.357686;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect93838"
+       width="21.762722"
+       height="5.5994496"
+       x="176.52888"
+       y="231.76146" />
+    <rect
+       style="fill:#87aade;stroke:#000000;stroke-width:0.357686;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect93840"
+       width="21.762722"
+       height="5.5994496"
+       x="176.52888"
+       y="237.05313" />
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="180.33879"
+       y="230.88583"
+       id="text93844"><tspan
+         sodipodi:role="line"
+         id="tspan93842"
+         style="stroke-width:0.264583"
+         x="180.33879"
+         y="230.88583">old rip</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="184.27861"
+       y="225.49315"
+       id="text93848"><tspan
+         sodipodi:role="line"
+         id="tspan93846"
+         style="stroke-width:0.264583"
+         x="184.27861"
+         y="225.49315">...</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="177.61122"
+       y="235.97548"
+       id="text93852"><tspan
+         sodipodi:role="line"
+         id="tspan93850"
+         style="stroke-width:0.264583"
+         x="177.61122"
+         y="235.97548">old rflags</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="180.64186"
+       y="241.36816"
+       id="text93856"><tspan
+         sodipodi:role="line"
+         id="tspan93854"
+         style="stroke-width:0.264583"
+         x="180.64186"
+         y="241.36816">old rsp</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="99.377045"
+       y="216.26166"
+       id="text93862"><tspan
+         sodipodi:role="line"
+         id="tspan93858"
+         style="stroke-width:0.264583"
+         x="99.377045"
+         y="216.26166">Kernel stack for</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="99.377045"
+         y="221.55331"
+         id="tspan93860">Program 2</tspan></text>
+    <rect
+       style="fill:#ffffff;stroke:#000000;stroke-width:0.357686;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect93864"
+       width="21.762722"
+       height="5.5994496"
+       x="134.19551"
+       y="210.59477" />
+    <rect
+       style="fill:#87aade;fill-opacity:1;stroke:#000000;stroke-width:0.543439;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect93866"
+       width="21.711029"
+       height="12.956133"
+       x="134.22133"
+       y="213.79559" />
+    <rect
+       style="fill:#87aade;stroke:#000000;stroke-width:0.357686;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect93868"
+       width="21.762722"
+       height="5.5994496"
+       x="134.19551"
+       y="226.46979" />
+    <rect
+       style="fill:#87aade;stroke:#000000;stroke-width:0.357686;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect93870"
+       width="21.762722"
+       height="5.5994496"
+       x="134.19551"
+       y="231.76146" />
+    <rect
+       style="fill:#87aade;stroke:#000000;stroke-width:0.357686;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect93872"
+       width="21.762722"
+       height="5.5994496"
+       x="134.19551"
+       y="237.05313" />
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="138.00542"
+       y="230.88583"
+       id="text93876"><tspan
+         sodipodi:role="line"
+         id="tspan93874"
+         style="stroke-width:0.264583"
+         x="138.00542"
+         y="230.88583">old rip</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="141.94524"
+       y="212.26401"
+       id="text93880"><tspan
+         sodipodi:role="line"
+         id="tspan93878"
+         style="stroke-width:0.264583"
+         x="141.94524"
+         y="212.26401">...</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="135.27785"
+       y="235.97548"
+       id="text93884"><tspan
+         sodipodi:role="line"
+         id="tspan93882"
+         style="stroke-width:0.264583"
+         x="135.27785"
+         y="235.97548">old rflags</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="138.30849"
+       y="241.36816"
+       id="text93888"><tspan
+         sodipodi:role="line"
+         id="tspan93886"
+         style="stroke-width:0.264583"
+         x="138.30849"
+         y="241.36816">old rsp</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="135.884"
+       y="218.98923"
+       id="text93894"><tspan
+         sodipodi:role="line"
+         id="tspan93890"
+         style="stroke-width:0.264583"
+         x="135.884"
+         y="218.98923">saved </tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="135.884"
+         y="224.28088"
+         id="tspan93892">registers</tspan></text>
+    <circle
+       style="fill:#28220b;fill-opacity:1;stroke:#28220b;stroke-width:0.126036;stroke-miterlimit:4;stroke-dasharray:0.126036, 0.756216;stroke-dashoffset:0;stroke-opacity:1"
+       id="circle104529"
+       cx="186.94897"
+       cy="207.17523"
+       r="1.154922" />
+    <path
+       style="fill:none;stroke:#87aade;stroke-width:0.665;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker125876)"
+       d="M 216.89082,207.10345 V 250.9347"
+       id="path121498" />
+    <circle
+       style="fill:#28220b;fill-opacity:1;stroke:#28220b;stroke-width:0.126036;stroke-miterlimit:4;stroke-dasharray:0.126036, 0.756216;stroke-dashoffset:0;stroke-opacity:1"
+       id="circle104531"
+       cx="216.81822"
+       cy="207.17523"
+       r="1.154922" />
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="215.98164"
+       y="202.54591"
+       id="text106273"><tspan
+         sodipodi:role="line"
+         id="tspan106271"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:monospace;-inkscape-font-specification:monospace;stroke-width:0.264583"
+         x="215.98164"
+         y="202.54591">iret</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="167.81288"
+       y="202.54591"
+       id="text108283"><tspan
+         sodipodi:role="line"
+         id="tspan108281"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:sans-serif;stroke-width:0.264583"
+         x="167.81288"
+         y="202.54591">Restore all registers</tspan></text>
+    <rect
+       style="fill:#ffffff;stroke:#000000;stroke-width:0.357686;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect109919"
+       width="21.762722"
+       height="5.5994496"
+       x="28.362173"
+       y="119.04889" />
+    <rect
+       style="fill:#ffffff;stroke:#000000;stroke-width:0.357686;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect109921"
+       width="21.762722"
+       height="5.5994496"
+       x="28.362173"
+       y="113.75723" />
+    <rect
+       style="fill:#ffffff;stroke:#000000;stroke-width:0.357686;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect109923"
+       width="21.762722"
+       height="5.5994496"
+       x="28.362173"
+       y="124.34055" />
+    <rect
+       style="fill:#aade87;stroke:#000000;stroke-width:0.357686;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect109925"
+       width="21.762722"
+       height="5.5994496"
+       x="28.362173"
+       y="129.63222" />
+    <rect
+       style="fill:#aade87;stroke:#000000;stroke-width:0.357686;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect109927"
+       width="21.762722"
+       height="5.5994496"
+       x="28.362173"
+       y="134.92389" />
+    <rect
+       style="fill:#aade87;stroke:#000000;stroke-width:0.357686;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect109929"
+       width="21.762722"
+       height="5.5994496"
+       x="28.362173"
+       y="140.21556" />
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="32.1721"
+       y="134.04826"
+       id="text109933"><tspan
+         sodipodi:role="line"
+         id="tspan109931"
+         style="stroke-width:0.264583"
+         x="32.1721"
+         y="134.04826">old rip</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="36.1119"
+       y="128.65558"
+       id="text109937"><tspan
+         sodipodi:role="line"
+         id="tspan109935"
+         style="stroke-width:0.264583"
+         x="36.1119"
+         y="128.65558">...</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="29.444548"
+       y="139.13791"
+       id="text109941"><tspan
+         sodipodi:role="line"
+         id="tspan109939"
+         style="stroke-width:0.264583"
+         x="29.444548"
+         y="139.13791">old rflags</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="32.475166"
+       y="144.53059"
+       id="text109945"><tspan
+         sodipodi:role="line"
+         id="tspan109943"
+         style="stroke-width:0.264583"
+         x="32.475166"
+         y="144.53059">old rsp</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="-6.4562936"
+       y="119.4241"
+       id="text109951"><tspan
+         sodipodi:role="line"
+         id="tspan109947"
+         style="stroke-width:0.264583"
+         x="-6.4562936"
+         y="119.4241">User stack for</tspan><tspan
+         sodipodi:role="line"
+         style="stroke-width:0.264583"
+         x="-6.4562936"
+         y="124.71577"
+         id="tspan109949">Program 1</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52778px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="218.3907"
+       y="221.62662"
+       id="text121584"><tspan
+         sodipodi:role="line"
+         id="tspan121580"
+         style="font-size:3.52778px;stroke-width:0.264583"
+         x="218.3907"
+         y="221.62662">Switching to user mode</tspan><tspan
+         sodipodi:role="line"
+         style="font-size:3.52778px;stroke-width:0.264583"
+         x="218.3907"
+         y="226.03635"
+         id="tspan121582">Switching from user stack to kernel stack</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:3.52778px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="146.25049"
+       y="179.65872"
+       id="text131412"><tspan
+         sodipodi:role="line"
+         style="font-size:3.52778px;stroke-width:0.264583"
+         x="146.25049"
+         y="179.65872"
+         id="tspan131410">Switching to a different virtual address space</tspan><tspan
+         sodipodi:role="line"
+         style="font-size:3.52778px;stroke-width:0.264583"
+         x="146.25049"
+         y="184.06845"
+         id="tspan131762">Remember that kernel is mapped to all memory spaces</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.26499999;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:0.26499999,0.79499996;stroke-dashoffset:0"
+       d="M -25.053061,253.45762 H 304.27346"
+       id="path144114" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.265;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.265, 0.795;stroke-dashoffset:0;stroke-opacity:1"
+       d="M -25.053061,154.5034 H 304.27346"
+       id="path144278" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.265;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.265, 0.795;stroke-dashoffset:0;stroke-opacity:1"
+       d="M -25.053061,207.4201 H 304.27346"
+       id="path144276" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.265;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.265, 0.795;stroke-dashoffset:0;stroke-opacity:1"
+       d="M -25.053061,112.17004 H 304.27346"
+       id="path144280" />
+  </g>
+</svg>

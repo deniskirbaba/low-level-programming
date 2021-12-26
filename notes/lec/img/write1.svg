@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="94.121147mm"
+   height="28.880554mm"
+   viewBox="0 0 94.121148 28.880554"
+   version="1.1"
+   id="svg138787"
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   sodipodi:docname="write1.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview138789"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="2.7402637"
+     inkscape:cx="220.78167"
+     inkscape:cy="41.601835"
+     inkscape:window-width="1920"
+     inkscape:window-height="1007"
+     inkscape:window-x="1"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs138784" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(54.103716,-124.66768)">
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="13.778635"
+       y="147.03059"
+       id="text9735"><tspan
+         sodipodi:role="line"
+         id="tspan9733"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;font-family:monospace;-inkscape-font-specification:monospace;stroke-width:0.264583"
+         x="13.778635"
+         y="147.03059">'b' = 0x62</tspan></text>
+    <rect
+       style="fill:none;stroke:#000000;stroke-width:0.263514"
+       id="rect10043"
+       width="25.963192"
+       height="5.0168452"
+       x="13.922485"
+       y="143.283" />
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="1.8972251"
+       y="147.03059"
+       id="text144431"><tspan
+         sodipodi:role="line"
+         id="tspan144429"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;font-family:monospace;-inkscape-font-specification:monospace;fill:#ff6600;stroke-width:0.264583"
+         x="1.8972251"
+         y="147.03059">0x40</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="1.8972251"
+       y="141.73892"
+       id="text144753"><tspan
+         sodipodi:role="line"
+         id="tspan144751"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;font-family:monospace;-inkscape-font-specification:monospace;stroke-width:0.264583"
+         x="1.8972251"
+         y="141.73892">0x3F</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="1.8972251"
+       y="136.44725"
+       id="text144757"><tspan
+         sodipodi:role="line"
+         id="tspan144755"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;font-family:monospace;-inkscape-font-specification:monospace;stroke-width:0.264583"
+         x="1.8972251"
+         y="136.44725">0x3E</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="-54.329025"
+       y="136.09644"
+       id="text148995"><tspan
+         sodipodi:role="line"
+         id="tspan148993"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;font-family:monospace;-inkscape-font-specification:monospace;stroke-width:0.264583"
+         x="-54.329025"
+         y="136.09644">mov rdi, <tspan
+   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;font-family:monospace;-inkscape-font-specification:monospace;fill:#ff6600"
+   id="tspan152101">0x40</tspan></tspan><tspan
+         sodipodi:role="line"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;font-family:monospace;-inkscape-font-specification:monospace;stroke-width:0.264583"
+         x="-54.329025"
+         y="141.38809"
+         id="tspan149129">call write1</tspan></text>
+    <rect
+       style="fill:none;stroke:#000000;stroke-width:0.265076"
+       id="rect172851"
+       width="25.966133"
+       height="5.0758643"
+       x="13.904418"
+       y="138.22473" />
+    <rect
+       style="fill:none;stroke:#000000;stroke-width:0.265076"
+       id="rect172853"
+       width="25.966133"
+       height="5.0758643"
+       x="13.904418"
+       y="133.14886" />
+    <rect
+       style="fill:none;stroke:#000000;stroke-width:0.265076"
+       id="rect172855"
+       width="25.966133"
+       height="5.0758643"
+       x="13.904418"
+       y="148.33983" />
+    <rect
+       style="fill:none;stroke:#000000;stroke-width:0.265076"
+       id="rect172857"
+       width="25.966133"
+       height="5.0758643"
+       x="13.904418"
+       y="128.073" />
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;line-height:1.25;font-family:sans-serif;stroke-width:0.264583"
+       x="14.111656"
+       y="127.03859"
+       id="text174797"><tspan
+         sodipodi:role="line"
+         id="tspan174795"
+         style="font-size:4.23333px;stroke-width:0.264583"
+         x="14.111656"
+         y="127.03859">memory</tspan></text>
+  </g>
+</svg>

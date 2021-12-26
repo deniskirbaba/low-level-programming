@@ -1,0 +1,304 @@
+#+INCLUDE: "common/org-header.org"
+#+LANGUAGE: en
+#+TITLE: Chapter 8. Abstract machine
+
+# <
+* Abstract machine
+# >
+
+
+So far we have been studying the lowest levels of the system: hardware, virtualized hardware, loading and linking.
+They enable us to build an assembly program from modules, interface these modules and  execute programs in isolation from other programs.
+But this is not enough to build really complex systems because assembly language is not very well suited for their construction: it is verbose, unsafe, and it does not allow expressing complex algorithms concisely.
+It is also hard to make an optimizer that would efficiently speed up an assembly program --- not because assembly programs are fast by themselves, but because they are extremely hard to analyze.
+More programmers have control over the execution, harder it is to optimize their programs.
+Therefore researchers and engineers came up with an idea of higher level languages to be able to conceive complex systems.
+
+In order to understand, what is the role of these languages in the computer system that we are studying, we need to start with more fundamental questions such as: what is a programming language, how to define it and what is the meaning of programs.
+
+
+
+* Programming language
+
+The assembly language bears no resemblance to the natural languages like English.
+It is an optimized code that computers can efficiently execute.
+To formulate our ideas of computations in complex computer systems, we need a better language.
+This may be some language closer to the natural language which we routinely use to think and communicate with others.
+However such language should be well fit to describe computations.
+
+** Requirements for programming language
+
+In technical contexts such as writing documentation, programs, mathematical proofs, we need to transmit information in a way that is:
+
+1) easy to read and write;
+2) unambiguous;
+3) easy, described by a small number of simple rules.
+
+Natural language does not seem to be a good fit for writing programs:
+
+1) It is not always efficient in describing computations; it does not have a lot of adequate, concise, minimal idioms to describe them because it has not evolved for that.
+2) It is ambiguous, which makes interpreting certain sentences difficult.
+3) It is rich, therefore it is difficult to describe a natural language.
+
+Before programmers, mathematicians have passed by the same road:
+
+- They started by reasoning in a purely natural language.
+- Then they have invented a dialect to talk about mathematics with idioms like "if and only if", "without loss of generality" etc.
+- Then a synthetic formalized language of formal logic appeared and allowed to describe mathematics unambiguously and concisely.
+  This language itself was based on simple rules so it is easy to learn or even automate the reasoning process in it.
+  
+Therefore we need simple synthetic languages specifically crafted for describing computations.
+They should be concise, constructed through defining basic atoms and combining them in a formalized unambiguous way, like the language of logic formulae.
+
+In order to define a programming language we need to describe its two aspects.
+
+1) We know that each program is a sequence of characters but how do we separate valid programs from other strings?
+2) What is the meaning of programs? How to relate the source code to the computations?
+
+** Compiler as a language description
+
+One way of defining a programming language to say that the compiler or interpreter itself is the language definition, since it parses programs and either executes them or transforms them into executable code, which we are able to run.
+This approach has serious issues:
+
+1) It is hard to tell programs from other strings:
+   1) The compiler bugs affect the language definition.
+      If a program is not accepted by the compiler/interpreter, either the program is invalid or the compiler has a bug.
+      Moreover, when the compiler changes e.g. when bugs get fixed, the set of "correct" programs changes with it.
+   2) It is hard to write other compilers, code analyzers, formatters, syntax highlighters, integrate the language in editors and do other tasks that require being aware of the language structure.
+2) It is hard to understand the meaning of program.
+   1) What if a program can work in a multitude of ways e.g. we execute it on many processors concurrently? The execution of the program will differ each time we launch it.
+   2) Compilers generate machine instructions with optimizations.
+      The result is extremely hard to read an interpret: there are no functions nor variables, instructions operate only with memory and registers, performing assignments and arithmetic operations.
+      Machine code is also processor specific, so compiling for e.g. Intel 64 and ARM will produce incompatible and incomparable code.
+      
+Instead of defining a language by crafting compilers or interpreters for it, we need another implementation-independent approach.
+   
+** Three aspects of languages
+
+In order to define a language in a cleaner and implementation-independent way we need to describe three aspects of a language:
+ 
+- Syntax :: the rules of statement constructions.
+   It allows us to construct programs, check the correctness of their construction (but not the correctness of their /meaning/) and 
+   We often use formal grammars to describe the language syntax.
+  
+- Semantics :: the meaning of language constructions, their effect on the language abstract machine.
+- Pragmatics :: an aspect that appears when we translate code to a different language; it describes how the meaning of program is changed by translation.
+
+  In this chapter we study these three aspects in more details.
+ 
+
+** Syntax
+
+Generally speaking, a language is a set of strings.
+Every element of this set is called a /sentence/ of this language.
+
+All sentences are constructed based on a certain alphabet; they may contain only the symbols of this alphabet.
+For example, take a language of integer arithmetic expressions with addition, subtraction, multiplication and division.
+This language is based on the alphabet:
+
+$$\Sigma = \{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, + , -, \times, / \}$$
+
+Sentences of this language contain only symbols from this alphabet.
+
+Not all combinations of symbols from the alphabet form a valid sentence in the language of arithmetic, for example =++= is not a valid sentence.
+If we denote a set of all strings of symbols taken from $\Sigma$ as $\Sigma^*$, the language will be a proper subset of $\Sigma^*$.
+
+But how to distinguish valid language sentences from other members of $\Sigma^*$?
+Since the language is infinite we can not just write a list of all correct sentences.
+One way of doing it is to structure the language identifying its basic sentences and constructions to compose them into more complex sentences.
+For example, we may say that:
+
+- a digit is any character in range 0..9
+- a number is a sequence of digits
+- an operation is either +, -, \times or /
+- an expression is either a number, or two expression joined by an operation.
+
+Such descriptions are provided by /formal grammars/ which we will study in the next section.
+
+  
+*** Grammars and Chomsky's hierarchy
+
+Formal grammars were first introduced by Noam Chomsky.
+They were created as an attempt to formalize natural languages like English.
+
+Formal grammars describe sentences with a tree-like structure, where leaves correspond to the primitive, atomic blocks, and more complex parts are composed from them (and other complex parts) according to some rules.
+Both primitive and composite parts are usually called /symbols/.
+The primitive, atomic symbols are called /terminals/ and the composed symbols are called /non-terminals/.
+
+This approach allows us to construct synthetic languages with very simple grammars --- of course, the simplicity is relative to the natural languages.
+
+Formally, a grammar consists of:
+
+- A finite set of terminal symbols.
+- A finite set of nonterminal symbols.
+- A finite set of production rules, describing the language structure.
+
+
+One non-terminal is distinguished as a starting symbol; this non-terminal is the root and will correspond to any valid sentence.
+
+The class of grammars that we are interested in has a very particular form
+of production rules. Each of them looks like:
+
+#+begin_verbatim
+<nonterminal> ::= sequence of terminals and nonterminals
+#+end_verbatim
+
+As we see, this is exactly the description of a nonterminal complex structure.
+We can write multiple possible rules for the same nonterminal, the convenient
+one will be applied. To make it less verbose, we will use the notation with the 
+symbol =|= to denote /or/, just like in regular expressions.
+
+This way of describing grammar rules is called 
+BNF (Backus-Naur form):
+- terminals are denoted with quoted strings;
+- rules are denoted using =::==;
+- nonterminals are written inside brackets.
+
+
+Sometimes it is convenient to introduce a terminal $\epsilon$, which,
+during parsing, will be matched with an empty (sub)string.
+
+So, grammars are a way to describe language structure. They allow you to 
+perform the following kind of tasks:
+
+- Test a language statement for syntactical correctness.
+    
+ - Generate correct language statements.
+    
+ - Parse language statements into hierarchical structures where, for
+        example, the =if= condition is separated from the code around it and
+        unfolded into a tree-like structure ready to be evaluated.
+
+*** AST
+    composition
+    syntactical categories?
+    
+*** Types
+*** Syntax and composition in systems
+
+
+#+begin_comment
+In programming languages, syntax defines basic rules of composition through:
+   - syntactic categories (numbers, expressions, statements) and the rules of their combinations (=x = <rhs>= expects expression on the =<rhs>=, not a statement).
+   - data types, which limit composition (not every expression will do for =x = <rhs>=, only one of the type matching the type of =x=).
+
+
+
+                    \item In some situations, the language standard does not
+                        provide enough information about the program behavior.
+                        Then it is entirely up to compiler to decide, how will
+                        it translate this program, so it is often assigning
+                        some specific behavior to such programs. 
+
+                        For example, in the call \c{f(g(x), h(x))} the 
+                        order of evaluation of \c{g(x)} and \c{h(x)} is
+                        not defined by standard. We can either compute
+                        \c{g(x)} and then \c{h(x)}, or vice versa. But the
+                        compiler will pick a certain order and generate 
+                        instructions that will perform calls in exactly this
+                        order.
+
+                        \item Sometimes there are different ways of translating
+                            the language constructions into the target code. 
+                            For example, do we want to prohibit the compiler
+                            from inlining certain functions, or do we 
+                            stick with laissez-faire strategy?
+
+\section{Syntax and formal grammars}
+#+end_comment
+
+** Semantics
+   Semantics of a programming language can be described in several ways.
+
+#+begin_comment
+Operational, denotational, axiomatic
+#+end_comment
+
+The most straightforward way is called /operational semantics/; it defines the action of all language constructions on the state of the abstract machine.
+An action is matched to the AST node, 
+For example, in C, an assignment will result in a write to the memory of an abstract machine, and calling a function will make it switch to executing different part of code, to return to the calling place 
+
+*** Behavior
+/Behaviour/ is the observable outcome of the program functioning.
+For C the language we may define program behaviour as a sequence of the following events:
+
+- Reads and writes to volatile variables.
+- Calls to external functions and system calls.
+
+A C program can have zero, one, several behaviours or demonstrate any behaviour imaginable.
+
+*** Determinism and non-determinism
+*** Totality and undefinedness
+*** Sequence points
+
+** Pragmatics
+*** Translating semantics
+*** Memory layout details
+    Stack
+    Alignment
+    Padding
+    Strict aliasing rules
+** Optimizations
+   Sample optimizations:
+*** Precomputation
+    function inlining etc
+*** Copy elision
+*** ???  
+*** Reorderings
+
+* Memory models
+Reduce program semantics to reads and writes
+What can be reordered?
+   
+* System levels 
+
+Layering is one of the common approaches to structuring systems.
+
+It is easier to build a complex system layer by layer.
+
+Each layer has:
+- Structural units.
+- Their interfaces.
+- Rules of composition.
+- Operational aspect: what is the meaning of the composition of the
+
+Each layer is related to the adjacent layers.
+Translation to the lower level.
+Base for the next level.
+
+
+** Systemic aspects of programming languages
+1) Language constructions, syntax.
+   Syntax defines rules of composition on the highest levels, through:
+   - syntactic categories (expressions, statements) and the rules of their combinations (=x = <rhs>= expects expression on the =<rhs>=, not a statement).
+   - types that limit composition (not every expression will do for =x = <rhs>=, only one of the type matching the type of =x=).
+
+   Abstract machine. Memory model.
+   Program semantics, program behaviour; undefined, unspecified, implementation defined.
+
+2) Modules.
+   Every module is a half-baked program with pending connections to other modules.
+   Code semantics is the same as assembly.
+   Linking is a composition through names; relocation.
+   
+   Between 1 and 2: compilation, memory model translation.
+
+   
+3) Processes.
+   Thread, a virtual CPU.
+   Machine code.
+   Address space, virtual memory.
+
+   Composition through shared memory, pipes, files, system calls etc.
+
+   Between 2 and 3: linking, relocation, loading.
+
+4) Physical CPU, memory and storage.
+
+   Composition through interfaces between CPUs (if multiple).
+
+   Machine code.
+
+   Between 3 and 4: virtualization through multiplexing and aggregation (virtual memory) and multiplexing (CPU).
+ 
+* Overview

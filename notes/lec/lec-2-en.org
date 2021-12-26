@@ -1,0 +1,1380 @@
+#+INCLUDE: "common/org-header.org"
+#+LANGUAGE: en
+#+TITLE: Chapter 2. Interpreter (functional component). Models of computation
+
+# <
+* Interpreter (functional component). Models of computation.
+# >
+  # [
+
+  It is absurd to try to drive screws with a hammer, to use a magnifying glass to
+  peek at atoms, or to unclog the pipes with a toothbrush.
+  We, humans, have been perfecting the art of creating a perfect instrument for every task.
+  There are dozens of types of knifes: one is for butter, other for cheese,
+  a different one yet for fish and steaks; some knifes are used in fights and some
+  knifes are good for tanning.
+  But no knife is good in driving down nails, cracking nuts or shaping marble into sculptures --- there are other instruments for that.
+  Using an appropriate specialized tool makes you radically more effective.
+
+  However, when we are building computer systems, we keep trying to solve all problems using variants of the same tools.
+  Languages like Python, Java, C are all describing computations sequentially, in an imperative style.
+  It makes them conceptually close to one another, they are sharing a lot of strengths and weaknesses.
+  These tools are popular because they are able to do anything but they are not exceptionally good for anything.
+
+  In reality, there are ways of organizing computations that are radically different from C or Java.
+  They may be exceptionally good to solve particular kinds of problems but terrible to solve other problems.
+  If you master some of such specialized tools you will be radically more productive and capable of providing quality solutions for extremely complex problems, just because you are using a screwdriver to drive screws, while everyone else has a butter knife.
+
+
+  Here is my promise to you.
+  At the end of this part you will have been exposed to new ways of organizing computations and to practical examples of their benefits.
+  This will enable you to craft very complex programs and systems easily and with less bugs.
+  Additionally, once you learn the basics of assembly in the next part, the first assignment will be much easier for you.
+
+  # ]
+  -----
+
+* References
+  :PROPERTIES: 
+  :UNNUMBERED: t
+  :END:
+  
+  # [
+
+  For today's part the references are as follows:
+    
+  # ]
+
+  - "Principles of Computer System Design":
+    - Section "2.1 The Three Fundamental Abstractions", p. 53--59.
+  - "Low-level programming":
+    - Section "7.1 Finite State Machines", p. 101--108.
+
+  - Model Checking:
+    - https://www.embedded.com/an-introduction-to-model-checking/
+    - https://www.cs.colorado.edu/~bec/courses/csci5535-s09/slides/lecture02.6up.pdf
+    - http://svn.clifford.at/handicraft/2017/tttm/README
+    - [[https://www.youtube.com/watch?v=GIrOek9sGyQ][Basic NuSMV Video Tutorial]]
+
+  -----
+
+* Recap
+  :PROPERTIES:
+  :UNNUMBERED: notoc
+  :END:
+
+  # <
+  - A system is a sum of its parts plus interactions between them.
+  - In computer systems we observe inner processes through interfaces and interpret the results.
+  - Running program is a system, source code is not a system.
+  - Complexity is the main challenge when building computer systems.
+  - Systems can be decomposed on parts structurally or functionally.
+  # >
+
+  # [
+  In the previous part we have learned what systems and computer systems are.
+  The source code is not a system because it is inactive, but a running program is a part of a hybrid system incorporating hardware and software parts.
+  Systems can be decomposed on parts structurally or functionally.
+
+  Computer systems are very complex. Their complexity is the ultimate challenge for developers.
+  There are powerful approaches that help us reduce the complexity of systems:
+  # ]
+
+  -----
+  # <
+  Reducing complexity through:
+  # >
+      - Modularity :: design smaller modules, craft each module in isolation, compose the system out of modules.
+      - Abstraction :: forget module structure, describe behavior instead.
+    
+  # <
+  Computer systems are very diverse.
+
+  Three common types of functional components:
+
+  # >
+  # [
+  Computer systems are also very diverse, and in order to somehow categorize them
+  we propose to decompose them functionally and study their components.
+  There are three common types of functional components
+  # ]
+  - Interpreter :: Executes actions or reacts on events;
+  - Memory :: Stores data;
+  - Communication link :: Connects parts of system.
+
+  -----
+
+
+
+* Interpreter
+  # <
+  - Functional component.
+  - Actions or reactions to events.
+  - We focus on interpreters which execute programs.
+    - CPU executing machine instructions.
+    - Interpreters of programming languages.
+    - Compilers.
+    - Language abstract machines (description of language semantics).
+    - Virtual machines.
+    - JIT compilers.
+    # >
+
+  # [
+  In this part we will focus on /interpreters/ or /executors/, one of three types of functional components in computer systems.
+  Interpreters are active elements performing actions that constitute computations, either proactively or as a reaction to some events.
+  Various interpreters may use radically different ways of describing computations.
+
+  So what is an interpreter doing?
+  We have provided many examples of interpreters in the previous part, such as word processors, games, browsers etc.
+  Some interpreters are programs, that accept a source code written in, say, Python, and execute it.
+  From a systems perspective these are a particular case of interpreters as functional components.
+  We are interested in precisely such interpreters that are executing programs.
+
+  # ]
+  -----
+
+** Rules of the game
+   # <
+   Try to craft a trivial algorithm.
+
+   We are home, we need to buy bread and we are going shopping.
+   # >
+   # [
+   When we program we put on paper our ideas about computations.
+   We need a fitting language to express these algorithmic ideas.
+   How do we describe an algorithm?
+
+   Before we answer this question, imagine we are telling someone how to perform some trivial action.
+   Try to explain some real-world action that we are performing often enough, like going shopping from home to buy some bread or rice.
+
+   Everyone will answer based on "evident" basic actions such as:
+ 
+   # ]
+   -----
+   # <
+   Everyone answers based on "evident" basic blocks:
+   # >
+   - "open the door", "take the key", "leave the house";
+   - "move the right leg forward 20 cm";
+   - "contract the following set of muscles in your leg";
+   - "starting point is here, end point is here" + "walk the shortest path" + "crossing the road is only allowed in this spot"...
+   # >
+   -----
+
+** Problems
+
+   # [
+   We see that giving a definite and precise answer to the question "How to get from your house to a shop?" is not trivial for at least two reasons:
+   - The answer is an algorithm, and we need a fitting language to express an algorithm precisely and unambiguously.
+     Natural languages e.g. English are imprecise and ambiguous.
+
+   - In our description we use a set of operations but we have never fixed them.
+      For each operation we may ask ourselves, what is that, how precisely do you do it?
+   # ]
+   # <
+   - Ideas require a language to be expressed.
+
+   - If you need to be precise, you will explain things through more basic things but you can not do it indefinitely.
+     # >
+     - What is moving your leg?
+     - What is taking the key?
+     - How do you tell the key from other objects?
+     # < 
+   - We require a set of basic actions.
+   - How to express "a way of doing computations"?
+     # > 
+
+   # [
+   So we require a basis, a foundation, a set of basic actions and ways of combining them.
+   There are infinitely many ways to describe algorithms; there are also infinitely many ways of laying foundations for these descriptions. 
+   Such foundations are called /models of computation/.
+   # ]
+
+   -----
+
+
+** Models of computation
+   # <
+   A set of basic operations and their assigned costs.
+   # >
+
+   # [
+   A /model of computation/ is a set of basic operations; we express algorithms through their combination.
+   Some of these operations may combine other operations, for example:
+
+   - pick two operations and execute one after another;
+   - pick two operations and execute them in parallel.
+
+   The diversity of models of computation is only limited by our fantasy.
+
+   # ]
+
+   -----
+
+*** Why use different models?
+
+    # [
+
+    Many programmers tend to think that problem solving is procedural in nature.
+    For example, cooking a meal is a sequence of steps that leads to a cooked dish, the result.
+    But in real life even non-programmers are not always solving problems procedurally! 
+
+    *Constraint-based approach*
+    
+    Imagine you and your friends want to go out and eat something, but you have different preferences.
+    You have a problem and you are trying to find a solution for it.
+    Every of you has a set of constraints: one does not like chicken and other does not like vegetables.
+    Your approach to solving this problem is not procedural: you are trying to find a solution that satisfies all constraints imposed by your friends.
+
+    The same constraint-based approach works when you are scheduling when are you going to complete your assignments: you have constraints such as deadlines, events that happen on fixed dates, classes every day etc.
+    The solution to this problem is a schedule where all your tasks have time slots allocated for them and all constraints are satisfied without collisions.
+
+    *Pipeline-based approach*
+
+    When a writer is working on a book, the book passes through a pipeline.
+    Every chapter starts like a draft made by the author, then passes through several editors.
+    Each editor has a role and applies a certain process to the book.
+    Then the draft goes back to author and sometimes the cycle repeats.
+    Such pipeline approach is typical for a lot of collaborative tasks.
+
+
+    So, we have laid three approaches to problem solving --- procedural, constraint-based and pipeline.
+    There are, of course, many more of them.
+    When we are solving problems in real life, we intuitively pick an appropriate mode of reasoning to solve them.
+    For computational problems choosing an appropriate model of computation makes solving them easier, faster, and the solutions have less bugs.
+    - If we craft a build system for a program, that spans over multiple source code files, we have to minimize the recompilation of files: a change in one file should not lead to recompiling files independent from it.
+    This is an optimization problem where constraint-based approach is effective.
+    - If we are programming a 3D engine where a world is 3D, we have to project objects from the world on screen and draw them.
+    There are multiple steps to be done for every object, that can be done concurrently; this is where a pipeline-based approach shines; check e.g. OpenGL pipeline.
+    
+    Naturally, using the same model of computations may work terribly or not work at all for a different problem.
+
+      # ]
+
+      # <
+      Different sets of basic operations are good in different contexts.
+      - Expressing solution in a fitting language is easier, faster, less error-prone.
+      - Can be limited (unable to express all possible algorithms).
+      # >
+
+ 
+      -----
+*** Typical model of computation
+    # <
+    - Every programming language is backed by a model of computation.
+
+    - Java, C++, Python, Pascal have very similar models of computation.
+
+      It can be described as an /abstract machine/ with von Neumann architecture.
+      # >
+      # [
+      Traditionally we start programming in languages like Java, Python or C, which are imperative languages.
+      These languages, and also Scala, Ruby, C#, Kotlin, Go, Javascript and a lot of others have similar models of computation.
+      It is convenient to describe their model of computation as an imaginary computer; the term for it is /abstract machine/. This abstract machine has von Neumann architecture with linear, flat address space, both readable and writable, and the program is sequential.
+      # ]
+
+   #+INCLUDE: "common/before-image.org"
+   #+attr_latex: :width 0.3\textwidth
+   #+attr_html: :width 30
+  {{{if-latex-else([[./img/von-neumann-pure.svg]],)}}}
+   #+INCLUDE: "common/after-image.org"
+
+   #+BEGIN_EXPORT md
+<p align='center'> <img width='50%'  src='./img/von-neumann-pure.svg' /> </p>
+   #+END_EXPORT
+   #+INCLUDE: "common/before-image.org"
+   #+attr_latex: :width 0.3\textwidth
+   #+attr_html: :width 30%
+      
+   #+INCLUDE: "common/after-image.org"
+    # <
+    - flat, linear memory;
+    - sequential execution.
+    # >
+    # [
+    In imperative programs every statement is a command: "Do this! Do that! Compute this variable! Output it! Call a function with this and that arguments!"
+    Hence the name for this programming style: /imperative programming/.
+    # ]
+    -----
+
+    # <    
+    Can do anything but not necessarily good.
+    # >
+    # [
+    It is indeed possible to express any algorithm in the von Neumann model of computation.
+    This model is, of course, not a silver bullet, not the best tool for all existing problems. 
+    A good strategy is:
+
+    # ]
+
+    - Provide a solution in an appropriate model of computation (e.g. constraint-based).
+    # <
+        - Easier, faster.
+    # >
+    
+    # [
+        Because the appropriate (e.g. constraint-based) model of computation makes expressing the solution straightforward, producing a solution on this level is easier. 
+    # ]
+    
+    - Encode the solution in target language (C, Java...)
+    # <
+        * Does not depend on the problem.
+        * Can be automated through code generation or DSLs.
+    # >
+    
+    # [
+      Then we can just code the solution in the target language.
+      The translation between two languages can be automated through code-generation (i.e. writing translators) or through domain-specific languages, implemented directly in the target language.
+    # ]
+
+    -----
+
+* Finite State Machines
+
+  # [
+  Finite state machines (FSM) are a type of imaginary computers (/abstract machines/).
+  A finite state machine is also called /finite automaton/ (/finite automata/ in plural).
+  
+  A FSM has a fixed set of states, and its execution is a series of jumps between these states.
+  Each jump is performed as a response to the events of external world; the reaction depends on the state they are in.
+  
+  Once an event occurs, the machine checks the rules of transitions associated with the current state.
+  Each rule is of form: "if the machine is in state /A/ and the input event is /I/ then jump to state /B/ and issue a reaction /O/".
+  Then the input event is consumed so it will not affect the functioning of machine anymore.
+  States /A/ and /B/ may not necessarily differ, so the rule may be a loop; it is not mandatory to show any reaction to an event either.
+
+  The computations start in a distinguished /initial state/.
+  The execution completes correctly if all input events happened and we ended up in one of distinguished /final states/.
+  Each final state encodes an outcome of execution: different answers such as "yes", "no", "error", "the number of /something/ is 2", if we count some events.
+  # ]
+  # <
+  Finite State Machine is:
+
+  - A set of events (/input symbols/).
+  - A set of reactions (/output symbols/).
+  - A set of /states/, one of them is /initial/, some of them may be /final/.
+  - Rules: "if the machine is in state /A/ and the input event is /I/ then jump to state /B/ and issue a reaction /O/".
+  # >
+
+   #+INCLUDE: "common/before-image.org"
+   #+attr_latex: :width 0.3\textwidth
+   #+attr_html: :width 80%
+  {{{if-latex-else([[./img/fsm-io.svg]],)}}}
+   #+INCLUDE: "common/after-image.org"
+
+   #+BEGIN_EXPORT md
+<p align='center'> <img width='40%'  src='./img/fsm-io.svg' /> </p>
+   #+END_EXPORT 
+   
+  # [
+  States are drawn as circles e.g. /A/ or /B/ on the diagram above; transitions are shown with arrows.
+  We annotate arrows with an event /I/, to which the machine reacts by following this transition, and the explicit reaction /O/, if any.
+
+  The initial state has an arrow into it annotated with the word /start/.
+  The final states are outlined in double circles.
+  
+  We can draw an analogy between external events and characters in a globally available input string.
+  Because of this, the events are also called /input symbols/, and the reactions are similarly called /output symbols/.
+  # ]
+  -----
+
+** Example. Bit parity
+
+   # [
+  Our first FSM has two states: /A/ and /B/.
+  /A/ is the initial state, and also a final state.
+  This FSM observes some global stream of zeros and ones.
+  An event is consuming a digit from it.
+  The machine is arriving in the final state if the consumed string contains an even number of ones.
+   # ]
+   # <
+   Consuming a digit from the input stream is an input event.
+# >
+   #+INCLUDE: "common/before-image.org"
+   #+attr_latex: :width 0.3\textwidth
+   #+attr_html: :width 80%
+  {{{if-latex-else([[./img/fsm-2.svg]],)}}}
+   #+INCLUDE: "common/after-image.org"
+
+   #+BEGIN_EXPORT md
+<p align='center'> <img width='80%'  src='./img/fsm-2.svg' /> </p>
+   #+END_EXPORT
+   
+   #+BEGIN_EXPORT html
+<p align='center'> <img width='40%'  src='./img/fsm-2.svg' /> </p>
+   #+END_EXPORT
+   
+   # [
+  Suppose that the input stream contains symbols: =0 0 1 1=.
+  There will be four events:
+  - We start in state /A/, the first input symbol is 0 so we jump in /A/.
+  - We are in state /A/, the second input symbol is 0 so we jump in /A/ again.
+  - We are in state /A/, the third input symbol is 1 so we jump in /B/.
+  - We are in state /B/, the fourth input symbol is 1 so we jump in /A/.
+
+  By generalizing, getting zeros does not change our answer to the question: "is there an even number of ones in the input stream?". However every time we consume =1= we change the answer from =yes= to =no= and vice versa.
+
+  This machine only knows how to answer =yes= for strings containing an even number of ones, but it does not really know how to say =no=.
+  
+  
+   # ]
+   -----
+
+** Example. Parsing a signed number 
+
+
+   #+INCLUDE: "common/before-image.org"
+   #+attr_latex: :width 0.6\textwidth
+   #+attr_html: :width 80%
+  {{{if-latex-else([[./img/fsm-1.svg]],)}}}
+   #+INCLUDE: "common/after-image.org"
+
+   #+BEGIN_EXPORT md
+<p align='center'> <img width='80%'  src='./img/fsm-1.svg' /> </p>
+   #+END_EXPORT
+   
+  # < 
+   - Good: 10, +32, -999, 0, +0, +023  
+   - Bad: -1-1, +++9, 38- and an empty string
+    # > 
+   # [
+   The next automaton is slightly more complicated, and it answers "yes" if the input string is a number.
+   A number contains at least one digit and also may start with a sign "+" or "-".
+
+   - Valid inputs :: 10, +32, -999, 0, +0, +023 are examples of valid numbers; we allow numbers with leading zeroes like 0222.
+   
+   - Invalid inputs :: -1-1, +++9, 38- and an empty string are examples of invalid numbers.
+   
+ We start in the state /A/.
+ The first character can be either a digit or a sign.
+
+ If it was a digit, we get to /C/.
+ We have just read a number, it is a success!
+ Every following digit will just let us stay in /C/.
+
+ If it was a sign we pass to /B/ which means "we have read the sign, now we expect digits".
+ Then we proceed by reading one or more digits, like in the previous case.
+
+ Once we run out of events, if we are still in /C/ then the answer is: yes, this string is a textual representation of a signed integer.
+Note that this does not parse the number yet: it does not produce the actual number whose digits we have consumed. 
+But we are halfway to solving this problem too.
+
+
+   # ]
+   -----
+
+** Practical cases
+# [
+We deliberately did not force the mathematical terminology in our explanations.
+We were calling input symbols events and output symbols reactions, because interpreting them as events and reactions is typical for the real systems conceived as state machines.
+
+Indeed neither input nor output symbols have to be characters from a string.
+*** Overview
+ Typical areas where state machines are useful are:
+ # ]
+
+    - Robots, machines.
+      - Events are sensory data and user action (pressing buttons)
+      - Reactions are robot actions (turn right, grab a part from the pipeline, pour coffee...)
+
+    - Network protocols.
+
+      - Events are incoming packets.
+      - Reactions are outgoing packets.
+ -----
+
+    - Non-player characters in computer games.
+      - States describe character progression in quests.
+      - Inputs are global events and player actions, outputs are character actions.
+       
+        # [
+ Now some more specific examples of how you can describe real-world systems as finite-state machines.
+        # ]
+    -----
+
+*** TCP protocol
+# [
+Every day we are using TCP protocol to exchange data through internet.
+State machines describe pretty well how a program interacts with another program following the protocol.
+Both parties participating in the exchange have internal state that maps exactly to one of the states on the diagram below.
+
+
+# ]
+
+   #+INCLUDE: "common/before-image.org"
+   #+attr_latex: :width \textwidth
+   #+attr_html: :width 80%
+  {{{if-latex-else([[./img/tcp-fsm.png]],)}}}
+   #+INCLUDE: "common/after-image.org"
+
+   #+BEGIN_EXPORT md
+<p align='center'> <img width='60%'  src='./img/tcp-fsm.png'/> </p>
+   #+END_EXPORT
+
+ (image [[https://www.researchgate.net/figure/TCP-Finite-State-Machine_fig1_260186294][source]])
+
+ # [
+This machine reacts to the following types of events:
+
+- A packet of specific type has been received (=SYN=, =ACK=, =RST= are different types of packets)
+- An application has performed some action (closing connection)
+- Global events from the outside world, like connection timeout.
+
+As you see the transitions happen when some kind of event occurs.
+These events are global relatively to the machine.
+No matter which state we are in, these events are observable.
+This is an important point that is characteristic to the situations where finite state machines shine.
+# 
+# *** Exemplary trace of execution
+# 
+#     For the sake of example let us observe what happens when we have established connection and we want to close it.
+# Because the connection is active, we are in the state =ESTABLISHED=.
+# Then the application is initiating closing connection.
+# In the program code this will correspond to calling some function that should gracefully close the connection.
+# For our model, a finite state machine, this is an external event and we do not care about its exact nature.
+# Once this event happens we take a transition from =ESTABLISHED= to =FIN_WAIT_1=.
+# At the same time the application sends a packet of type =FIN=. 
+# 
+# In  
+# 
+# 
+# ]
+
+    -----
+*** Regular expressions
+# <
+- Regular expressions are a way to encode FSM.
+# >  
+    # [
+Regular expressions are a way to encode FSM. They are often used to define text patterns to match against. Your favorite text editor probably allows you searching a pattern in text and substituting it. 
+
+There is a number of regular expressions dialects.  We will take as an example
+a dialect akin to one used in =egrep= utility. 
+A regular expression can be:
+
+- A letter.
+- A sequence of two regular expressions: =R Q=.
+- Metasymbols =^= and =$=, matching against the beginning and the end of the line.
+- A pair of grouping parentheses with a regular expression inside: =(R)=
+- An /or/ expression: =R | Q=
+- =R*= denotes zero or more repetitions of =R=.
+- =R+= denotes one or more repetitions of =R=.
+- =R?= denotes zero or one repetitions of =R=.
+- A dot matches against any character.
+- Brackets denote a range of symbols, for example =[0-9]= is an equivalent of =0|1|2|3|4|5|6|7|8|9=
+
+You can test regular expressions using the =egrep= command. It processes
+its standard input and filters only lines matching a given pattern. 
+Do not forget to put the expression itself in single quotes.
+
+Here are some examples of simple regular expressions:
+
+# ]
+
+- =hello_.+= matches against =hello_Frank= or =hello_12=, does not match against =hello_=.
+- =[0-9]+= matches against an unsigned integer, possibly starting with zeros.  
+- =-?[0-9]+= matches against a possibly negative integer, possibly starting with zeros.
+- =0|(-?[1-9][0-9]*)= matches against any integer not starting with zero (unless it is zero).
+
+# [
+
+These rules allow us to define a complex search pattern. The regular expressions
+engine will try to match the pattern starting with every position in text.
+
+The regular expression engines like =grep= are often implemented through construction of a finite state machine based on a regular expression.
+
+# ]
+
+# <
+Good way of implementing regular expressions is by constructing FSM from them and executing FSMs.
+# >
+    -----
+
+*** Five states of processes
+    
+    # [
+    A process is a container for the resources of a running program.
+    In this section we will assume that each process has only one thread to simplify things.
+
+    In a classic five-state model each process is born, initialized and then its thread is scheduled for execution.
+    # ]
+
+
+   #+INCLUDE: "common/before-image.org"
+   #+attr_latex: :width 0.9\textwidth
+   #+attr_html: :width 80%
+  {{{if-latex-else([[./img/fsm-processes.svg]],)}}}
+   #+INCLUDE: "common/after-image.org"
+
+   #+BEGIN_EXPORT md
+<p align='center'> <img width='60%'  src='./img/fsm-processes.svg'> </p>
+   #+END_EXPORT
+    # [
+    Once initialized the process becomes =READY= for scheduling.
+    A scheduler dispatches it, giving it time to be executed by CPU.
+    Now the process is =RUNNING=.
+
+    While it is running, three things may happen.
+
+    - Either it depletes its time, then it is being interrupted by the timer and becomes =READY= for dispatch again.
+      After some time, it will get more CPU time in its turn.
+    - If the process initiates an I/O action, like reading from storage, there is no point in giving it more CPU time.
+      The I/O operations take very long time and the process is unable to proceed before the operation completes.
+      So it becomes =WAITING= for the operation to complete and is excluded from scheduling.
+    - The process exits, then it becomes =TERMINATED= and its resources are released.
+
+    Notice again that all these conditions are global related to the process itself.
+
+
+    Of course, in many real systems this model is but a useful approximation, and the full model will contain more states.
+    Moreover, if you create your own operating system, language virtual machine like Erlang or any other execution platform, your concept of processes may be different.
+
+    Now let us further explore FSMs by pinpointing their key differences from von Neumann machines that we are so used to.
+# ]
+
+    -----
+
+** How are FSM different
+
+# [
+When people learn finite state machines they often have a desire to bring in some properties familiar to them from other programming paradigms.
+
+So here are some key differences between two models of computation: the imperative
+programming, von Neumann machine, that we are accustomed to, and finite state machines.
+
+# ]
+
+# <
+- State of von Neumann machine :: values of all registers and memory cells.
+- State of finite state machine :: "circle", one of a fixed sets.
+- Finite state machines have no variables, no registers, no memory.
+# >
+
+   # [
+   First, the state of computer, for an assembly programmer, is fully characterized by the values of its registers and memory.
+   The state of finite state machine, however, is opaque.
+   We only know that the current state is this or that "circle", one of a fixed set.
+
+   Second, in FSMs there is no memory whatsoever, no variables, no registers, no stack,
+   also no assignments, no if-then-else constructions, no loops like =while= or =for=.
+   It is thus a completely different abstract machine comparing to the von Neumann one.
+   There is really nothing but states and transitions between them.
+   
+   However, from a practical perspective, we will still use memory in our programs.
+   If we place memory cells outside of the FSM model and treat writing to them as output actions regulated by the transitions, we stay within the capabilities of FSM.
+
+   For example, coming back to parsing a string of characters with a finite state machine, we can consider it external to the FSM itself, global in a way.
+   Then we assume that there is a component which feeds characters of the string to the FSM and updates the current position in it.
+   By using this trick we completely abstract working with memory with the layer of global events to which FSM is reacting.
+
+   FSMs are also good to demonstrate the notions of determinism and non-determinism, undefined behavior and totality.
+# ]
+   
+   -----
+
+** Non-determinism
+
+   # [
+     Once a FSM observes an event from its current state it picks a transition annotated with the right event and jumps to another state.
+     But from the way we were constructing FSM it is possible to have several transitions annotated with the same event.
+     What will happen if in the following FSM we observe an event =3= while being in state /A/?
+   # ]
+# <   
+   - We are in /A/, input is 3, what do we do?
+     # >
+     
+
+   #+INCLUDE: "common/before-image.org"
+   #+attr_latex: :width 0.3\textwidth
+   #+attr_html: :width 30%
+  {{{if-latex-else([[./img/fsm-nondeterm.svg]],)}}}
+   #+INCLUDE: "common/after-image.org"
+
+   #+BEGIN_EXPORT md
+<p align='center'> <img width='25%'  src='./img/fsm-nondeterm.svg'> </p>
+   #+END_EXPORT
+   
+   # <
+- Several possible transitions for event
+   # >
+   # [
+   In order to find a reasonable course of action we have to define more precisely what is the result of the functioning of a FSM.
+
+   For a given input stream of events we will call a /behavior/ of FSM a sequence of transitions from an initial state to a final state.
+   A behavior is a trace of execution.
+
+   What if there are multiple outgoing arrows annotated with the same event?
+   Instead of having a /single behavior/ we will assign to a FSM a /set of behaviors/, all of which are equally valid.
+   This is what we call /non-determinism/ --- an ability to have multiple behaviors.
+
+   Non-determinism does not mean that the single behavior is going to be chosen at random!
+   It is  what it is: one system has many behaviors.
+   However, when we implement the FSM as a program in a deterministic language, like assembly, we will have to chose what to do:
+
+   - keep track of all behaviors and show all of them to user somehow;
+   - we select any single behavior from the set of possible behaviors.
+   
+   
+# ]
+# <
+   - /Behavior/ is a sequence of transitions, a trace.
+     Not one behavior, but /a set of behaviors/.
+
+   Related: undefined behavior in C, weak memory model.
+# >
+
+   -----
+
+** Non-determinism in C
+
+# [
+The concept of behavior is not specific to FSM, it applies to C, Java and any other programming language. 
+Program execution can be viewed as a sequence of transitions between the states of the abstract machine of the language.
+Then the most fine-grained definition of behavior would be /a sequence of transitions between the states of abstract machine for a given input/.
+
+Let us demonstrate how a program in C can have multiple behaviors i.e. be non-deterministic, just like a FSM.
+
+Consider two functions: =f= and =g=. Each of them outputs its name and returns an integer 1.
+What will be the outcome of evaluating =f() + g()=?
+# ]
+
+#+BEGIN_SRC c
+int f() { print("f"); return 1; }
+int g() { print("g"); return 1; }
+...
+f() + g();
+#+END_SRC
+
+# [
+We are unable to evaluate a complex expression such as =f()+g()= in one step, so we will split it into three substeps: two for evaluating the functions =f()= and =g()= respectively, and one more for adding their results.
+
+# ]
+
+   #+INCLUDE: "common/before-image.org"
+   #+attr_latex: :width 0.8\textwidth
+   #+attr_html: :width 80%
+  {{{if-latex-else([[./img/fsm-nondeterm-c.svg]],)}}}
+   #+INCLUDE: "common/after-image.org"
+
+   #+BEGIN_EXPORT md
+<p align='center'> <img width='40%'  src='./img/fsm-nondeterm-c.svg'> </p>
+   #+END_EXPORT
+
+# [
+However, in C the order of evaluating left and right operands of =+= operator is undefined.
+It means that for the expression  =f()+g()= we can either evaluate =f()= first, then =g()=, or =g()= first, then =f()=.
+The resulting value will be the same because addition is commutative, but these functions are also printing their names on screen!
+So depending on which function will be evaluated first, the user may see on screen either =fg= or =gf=.
+
+These two options correspond to two traces:
+# ]
+
+   1. =f() + g();= - =1 + g();= - =1 + 1= - =2=
+   2. =f() + g();= - =f() + 1;= - =1 + 1= -  =2=
+
+# [
+These traces form a set of behaviors.
+A C program actually has /multiple behaviors/.
+When it passes through the compiler, the latter selects one behavior out of this set; the compiled program will have this single behavior.
+
+Note that compiler is not obliged to select or that behavior.
+Once you change the source code or chose a different set of compile flags, and then recompile your program, the compiler might select a different behavior.
+This different selection may lead to a smaller compiled binary size, to a faster program, or this selection may be random.
+
+Having multiple possible behaviors may be dangerous.
+Imagine that one of the action is reading a line from some file, and another action writes a line to the same file, and these operations may happen in any order.
+Worse even, if the order is as you expect it, you may miss the possible bug altogether until it happens in one of the future versions of the program.
+
+
+The C program is allowed to have many behaviors, and the compiled binary has only one behavior.
+This is /compile-time/ non-determinism, because the compiled program is deterministic.
+There may be cases of /run-time non-determinism/ where each time the program is being executed it may have a different behavior.
+This may be a result of concurrent execution with an incorrect synchronization, data races etc.
+# ]
+     
+   -----
+
+** Undefined behavior
+
+   # [
+We have seen an example of non-determinism, when the behaviors are many.
+Can there be no behavior at all?
+
+   Let us take a look at this FSM again; we are in the state /A/, the input event is =1=.
+   What do we do?
+   # ]
+# <
+   - We are in /A/, input is 1, what do we do?
+   - No behaviors, an empty set.
+# >
+   #+attr_latex: :width 0.3\textwidth
+   #+attr_html: :width 30%
+   [[./img/fsm-nondeterm.svg]]
+# <
+   For undefined behavior, a runtime error or ad-hoc reaction.
+
+   Related: undefined behavior in C, used so that compiler emits less checks. 
+# >
+# [
+There is no transition for the event =1=, so we really have nowhere to go.
+In this case we postulate that this trace has lead to /undefined behavior/ (we literally do not know how to define it).
+
+In languages like C undefined behavior is present for several reasons.
+Take null-pointer dereference. If we assign a specific semantics to dereferencing null-pointer, then the program will have to check all pointers before dereferencing them.
+If there is a possibility for a pointer to be null, then the program will have to check it, and if this is the case, demonstrate some specific behavior.
+
+This is potentially degrading the program's performance.
+Instead of this, the language relies on the programmer's skill: it demands the programmer to promise that they will never dereference a null-pointer. Only then will the language guarantee a well-defined behavior to the program. 
+
+A C program can have an undefined behavior, but a compiled assembly program is always doing something well-defined.
+Whenever undefined behavior happens in C program, in assembly program anything can happen: nothing, an immediate runtime error, an error *later during the execution*, incorrect computation result etc.
+
+# ]
+   -----
+
+** Totality
+# [
+Some FSMs do not exhibit undefined behavior no matter which events they observe.
+This happens if for every state there is a transition for every possible event.
+
+For example, consider this state machine, that we have already studied.
+Its behavior is undefined for an input =++=.
+# ]
+
+# <
+   - Total FSM = no undefined behavior
+   - For every state there is a transition for every event.
+   - Non-total can be trivially upgraded to a total.
+# >
+   #+INCLUDE: "common/before-image.org"
+   #+attr_latex: :width 0.9\textwidth
+   #+attr_html: :width 80%
+  {{{if-latex-else([[./img/fsm-1.svg]],)}}}
+   #+INCLUDE: "common/after-image.org"
+
+   #+BEGIN_EXPORT md
+<p align='center'> <img width='60%'  src='./img/fsm-1.svg'> </p>
+   #+END_EXPORT
+   
+# [
+However, it is trivial to make any FSM total.
+First, we add a special /error/ state.
+Every time there is no transition we want to get into this state.
+Then for each state and for each missing transition we add a new transition to this error state.
+
+In order to keep our diagrams compact we will group these transitions into a single arrow and mark them as /else/ transitions, like this:
+
+# ]
+
+-----
+ # <
+ Making FSM total:
+ # >
+   #+INCLUDE: "common/before-image.org"
+   #+attr_latex: :width 0.8\textwidth
+   #+attr_html: :width 70%
+  {{{if-latex-else([[./img/fsm-3.svg]],)}}}
+   #+INCLUDE: "common/after-image.org"
+
+   #+BEGIN_EXPORT md
+<p align='center'> <img width='60%'  src='./img/fsm-3.svg'> </p>
+   #+END_EXPORT
+   
+    -----
+** Limitations
+   # [
+Not all programs can be encoded as finite state machines.
+For example, given an arbitrary long string, a FSM is unable to count its length.
+Each result (one character, two characters...) would be a state, and there is only a limited number of states in finite state machines, while the string length is unbound.
+
+Moreover, FSMs are unable to analyze complex recursively constructed texts, such as XML, HTML pages, sources of most programming languages etc.
+Indeed think about an HTML page: you may have a =<div>= block containing an arbitrary large number of inner =<div>= blocks.
+The rules of constructing a valid =<div>= block are however absolutely the same no matter its depth.
+
+We say that FSMs are /not Turing-complete/ because they are strictly less expressive than a typical language like C, Java or assembly, which can be used to solve a wider range of problems. 
+Surprisingly, this limitation is not a bad thing, but a source of immense power.
+
+   First, once we limit the expressive power and the number of actions available, it may be easier to combine them.
+   Building FSMs is straightforward and very illustrative as long as the problem is right for that.
+
+   Second, more importantly, it is impossible to precisely statically analyze the execution any Turing-complete program.
+   For example, it is impossible to build an analyzer capable of precisely
+   catching the null-pointer dereference ahead of execution. 
+   It is not a limitation of analyzers, but a fundamental theoretical
+   constraint described by Rice's theorem.
+
+   The inability to analyze programs follows directly from the expressive power of the languages.
+   However, if the expressive power is limited, and the model of computation stops supporting all algorithms, the programs may become completely analyzable.
+   One of verification techniques called /model checking/ is relying on this. We will give a quick overview of what model checking is and provide some examples, so that if the need arises you would be able to dive deeper on your own.
+   
+   # ]
+
+   # <
+   - FSMs are not Turing-complete.
+   
+   *Limitations are good*
+   - simpler, less things to worry about
+   - much easier to analyze the program behavior
+   # >
+
+
+   -----
+
+    
+* Model Checking
+# [
+Model checking is verifying properties of models using automated analyzers.
+It is a stronger tool than testing programs, because it produces universal results.
+In other words, it is capable of proving properties of the whole program on all possible inputs, not on particular cases.
+
+# ]
+# <
+   - Checking properties of models using specialized analyzers.
+   - Stronger than testing (universal properties vs case analysis).
+      # >
+      
+# [
+There are two ways we can approach the system design problem to employ model checking techniques:
+
+# ]
+   - Easy way: conceive the system as a state machine and verify its properties.
+   - Harder way: model an existing program as a /transition system/.
+# >
+   -----
+
+** Transition systems
+
+# [
+A /transition system/ is a looser, more generalized version of the state machine.
+There is no limit to a number of states, and the transitions do not need to be guided by external events.
+
+# ]
+ # < 
+   - Program execution as transitioning between states.
+   - Similar to FSM (Kripke structure).
+# >
+
+# [
+Each state will be an image of memory state with the values for all variables.
+Consider this simple program, where the variable =x= has values 0,1,2,3.
+Because the loop body is empty, there will only be four reachable states in this program.
+# ]
+
+   #+BEGIN_SRC C
+for (int x = 0; x < 3; x++) { }
+   #+END_SRC
+
+   -----
+
+# [
+Now a slightly more complex example.
+# ]
+
+#+BEGIN_SRC C
+bool b = true;
+uint8_t x = 0;          // `x` between 0 and 255
+while( true ) {
+  if (b == true) { if (x < 2) b = false; }
+    else {
+      b = true;
+      if (x < 2) x += 1;
+    }
+  print(x); print(b);
+ }
+#+END_SRC
+   
+# [
+There are two variables here:
+- =b= might be only =true= or =false=;
+- =x= may have any value from 0 to 255.
+
+The overall number of all possible states in this program is 256 * 2 = 512, but not all of them will ever happen during the execution, not all of them are /reachable/. We can draw all these states on a diagram and mark them with the exact values of variables.
+The initial state is the one with =b = true, x = 0=. Green states are reachable, while red states will never be reached during the execution.
+# ]
+
+[[./img/states.svg]]
+
+
+
+-----
+
+* Linear temporal logic
+# [
+If we manage to describe a system as a finite transition system and label each state with some properties, like the variable values, our program becomes fully analyzable, and Rice's theorem does not hold any power over us anymore.
+
+Properties are described using logical formulae.
+In the classical logic we can construct propositions describing the program state, e.g. $x > 0$; we are able to connect them using operations like /and/, /or/, /not/.
+The classical logic, however, does not have modality of time: for example, we are unable to express that the variable $x$ is not yet greater than zero, but will certainly become so in the future.
+
+A more fitting variant of logic is called Linear Temporal Logic (LTL).
+It adds several quantifiers over propositions:
+# ]
+# <
+   - Often checks properties described in *Linear Temporal Logic*:
+
+     - values of variables: =x > 0=, =y == x + 4=, =y ! = 9 && y < 17= ...
+
+       # >
+     - proposition stays true: =G(proposition)=.
+     - the proposition will at some point be true =F(proposition)=.
+     - proposition =x= is true at least until proposition =y= becomes true (maybe longer): =x U y=.
+       # <
+     - ...
+
+   - The model checker will provide a precise trace to the state where the property is violated.
+# >
+# [
+Because we think of a program as a transition system, LTL formulae are actually applied to the traces of transitions.
+This way, a proposition $F(x>0)$ is interpreted as "in the future, we will certainly arrive to a state where $x>0$ holds".
+$G$ and $U$ are also interpreted in terms of traces.
+
+When we ask the model checker to verify a formula, it uses tricky algorithms and data structures to be able to check the properties for all reachable states relatively fast.
+If the property does not hold then there exists a counter-example, a trace with a state where the property gets violated.
+In this case the model checker will provide you this trace with all details.
+
+One of the typical applications of model checking is verifying distributed algorithms.
+There is non-determinism in them because several processes are acting concurrently on the same data, and the order in which these processes will issue reads and writes is unknown.
+
+For the sake of example, imagine two processes working on the same array.
+The first one may perform 3 actions, then the second one --- 5 more, then the first one --- 2002 more etc.
+The processes have way too much freedom in how they are taking turns.
+
+Model checking allows us to verify properties like "the first process has written a value to the variable =x= before the second one reads it".
+If such property is violated, the checker issues a precise trace showing which process has done what.
+In real world the probability of such situation may be one in a thousand executions, so trying to catch it through brute testing is not effective.
+
+# ]
+   -----
+
+** NuSMV
+ # [
+ NuSMV is one of modern model checkers.
+ Like most of them it implements its own language to describe a model.
+ The language seems imperative at a first glance, e.g. it has variables.
+ However, the program description is actually transformed into a transition system right away, where variables are encoded into states in the same way we have shown earlier.
+ 
+ Every state is a set of values of all variables.
+
+ # ]
+ # <
+     - One of model checkers.
+     - Defines a quasi-imperative language to describe model.
+     - There are variables, but the program is a transition system.
+     - Every state is a set of values of all variables.
+     - This system has 300 states:
+ # >
+
+ #+BEGIN_SRC 
+VAR
+    x: 1 .. 100 ;   -- x in range from 1 to 100
+    y: 5 .. 7 ;
+#+END_SRC
+
+
+ -----
+*** Example I
+
+    #+BEGIN_SRC
+MODULE main
+
+VAR
+    location: {l1, l2};
+
+ASSIGN
+    init(location) := l1 ;
+    next(location) := case 
+                      location = l1 : l2 ;
+                      location = l2 : l1 ;
+                      esac;
+    #+END_SRC
+
+     # [
+ The first example is a very minimal one.
+ A NuSMV model is divided into modules.
+ Each module is a file; it contains sections such as =VAR= and =ASSIGN=.
+
+ - Variables are defined in the section =VAR=.
+ We define a single variable =location= whose value may be either =l1= or =l2=.
+ There are no other variables so this system may be in one of two states.
+
+ - The section =ASSIGN= defines actions that happen when the system performs a step of execution.
+   - The =init= clause defines the initial values for variables.
+     Here =location= starts with value =l1=.
+
+   - The =next= clause describes how the variables are changed at every step of execution.
+      In order to encode multiple conditions we write =case=.
+      - if =location= is =l1= then the new value of =location= will be =l2=;
+      - if =location= is =l2= then the new value of =location= will be =l1=.
+
+ To load this model into NuSMV, save it to a file =intro.smv= and launch NuSMV with an option =-int= and input the following:
+
+ #+BEGIN_SRC
+read_model -i intro.smv
+flatten_hierarchy
+encode_variables
+build_model
+ #+END_SRC
+
+ Now we have to pick an initial state. Type this to pick the state interactively:
+ 
+ #+BEGIN_SRC
+pick_state -i
+ #+END_SRC
+
+We only have one variable and we have assigned its initial value.
+Because of this there is only one possible init state in this model.
+If we had more variables and did not assign them any initial value, they would be able to take any value.
+Hence there would be a multitude of possible initial states.
+This would model an input to the machine; NuSMV would propose us to pick exact values for those variables.
+
+The first feature of NuSMV is simulation. By using =simulate= command we perform transitions.
+Try using it like this:
+
+ #+BEGIN_SRC
+simulate -iak 4
+ #+END_SRC
+
+ It makes NuSMV:
+
+ - i :: interactively simulate the execution process, 
+ - a :: print all variables,
+ - k 4 :: for 4 steps.
+
+ If there were cases of non-determinism where multiple transitions were possible, interactive simulation would allow us to pick a transition.
+
+ As you see, this system just keeps switching between two states:
+ - =location = l1=, and
+ - =location = l2=.
+
+
+ 
+# ] 
+     -----
+*** Example II
+
+    # [
+    Recall a simple C program that we have provided earlier.
+    # ]
+#+BEGIN_SRC C
+bool b = true;
+uint8_t x = 0;          // `x` between 0 and 255
+while( true ) {
+  if (b == true) { if (x < 2) b = false; }
+    else {
+      b = true;
+      if (x < 2) x += 1;
+    }
+ }
+#+END_SRC
+
+    # [
+    Let us model it as a transition system with help of NuSMV.
+    # ]
+-----
+
+#+BEGIN_SRC    
+MODULE main
+
+VAR
+    b: {true, false};
+    x:        0 .. 255;
+
+ASSIGN
+    init(b) := true;
+    init(x) := 0 ;
+    next(b) := case 
+                      (b = true) & (x < 2) : false ;
+                      (b = false) : true ;
+                      TRUE: b; 
+                      esac;
+    next(x) := case
+                    (b = false) & (x < 2) : x + 1;
+                    TRUE : x;
+               esac;
+
+#+END_SRC    
+
+# [
+There are no surprises here; this model is just one step away from the previous one.
+# ]
+-----
+
+# [
+Now we will ask NuSMV to simulate this model and produce a trace.
+To our satisfaction, the states and transitions match the picture:
+# ]
+#+BEGIN_SRC
+NuSMV > simulate -vk6 
+ ********  Simulation Starting From State 3.1   ********
+  -> State: 3.1 <- b = true, x = 0
+  -> State: 3.2 <- b = false, x = 0
+  -> State: 3.3 <- b = true, x = 1
+  -> State: 3.4 <- b = false, x = 1
+  -> State: 3.5 <- b = true, x = 2
+  -> State: 3.6 <- b = true, x = 2
+#+END_SRC
+
+
+{{{if-latex-else([[./img/states.svg]],)}}}
+
+#+BEGIN_EXPORT md
+<p align='center'> <img width='60%'  src='./img/states.svg' /> </p>
+#+END_EXPORT
+
+-----
+
+# [
+And now for the best part, where we will perform check on some properties of this model and automatically prove them formally.
+
+To check the LTL formula for a model we use a command =check_ltl -p"FORMULA"=, where =FORMULA= gets substituted with the property that we are checking.
+
+Let us try some properties.
+The first property reads "variable $x$ is always less than 3".
+# ]
+
+#+BEGIN_SRC
+NuSMV > check_ltlspec -p "G(x<3)"
+-- specification  G x < 3  is true
+#+END_SRC
+
+# [
+It is true as we see from an illustration.
+The next property reads "variable $x$ is always less than 2".
+It is obviously false, because we get to the state where $x=2$ and then get stuck in it.
+# ]
+
+#+BEGIN_SRC
+NuSMV > check_ltlspec -p "G(x<2)" 
+-- specification  G x < 2  is false
+-- as demonstrated by the following execution sequence
+Trace Type: Counterexample 
+  -> State: 7.1 <- b = true, x = 0
+  -> State: 7.2 <- b = false
+  -> State: 7.3 <- b = true, x = 1
+  -> State: 7.4 <- b = false
+  -- Loop starts here
+  -> State: 7.5 <- b = true, x = 2
+  -- Loop starts here
+#+END_SRC
+
+-----
+
+# [
+Next property reads 
+"$x$ will never be equal to 3".
+# ]
+ # <
+=x= will never be equal to 3 (we enter a loop after State 8.4):
+# >
+#+BEGIN_SRC
+NuSMV > check_ltlspec -p "F(x=3)"
+-- specification  F x = 3  is false
+-- as demonstrated by the following execution sequence
+Trace Description: LTL Counterexample 
+Trace Type: Counterexample 
+  -> State: 8.1 <- b = true, x = 0
+  -> State: 8.2 <- b = false
+  -> State: 8.3 <- b = true, x = 1
+  -> State: 8.4 <- b = false
+  -- Loop starts here
+  -> State: 8.5 <- b = true, x = 2
+#+END_SRC
+# [
+For the first states this property holds. Then because we enter a loop after State 8.5 we will never reach any other state where $x$ could be any different.
+# ]
+-----
+
+# [
+Finally, let us check two more mutually exclusive conditions:
+
+- Always, if $x=2$, then =b = true=:
+# ]
+
+#+BEGIN_SRC
+NuSMV > check_ltlspec -p "G(x=2 -> b = true)"
+-- specification  G (x = 2 -> b = true)  is true
+#+END_SRC
+# [
+- Always, if $x=2$, then =b = false=:
+# ]
+#+BEGIN_SRC
+NuSMV > check_ltlspec -p "G(x=2 -> b = false)"
+-- specification  G (x = 2 -> b = false)  is false
+-- as demonstrated by the following execution sequence
+Trace Description: LTL Counterexample 
+Trace Type: Counterexample 
+  -> State: 9.1 <- b = true, x = 0
+  -> State: 9.2 <- b = false
+  -> State: 9.3 <- b = true, x = 1
+  -> State: 9.4 <- b = false
+  -- Loop starts here
+  -> State: 9.5 <- b = true, x = 2
+  -- Loop starts here
+  -> State: 9.7 <-
+#+END_SRC
+
+# [
+There are no surprises here; but the formula is already less trivial and if we look at the source code it is not obvious at all that this property holds.
+Thanks to automating we can now verify very complex properties for quite complex systems and be very certain about our results.
+# ]
+
+-----
+** Verification use-cases 
+# [
+There are domains where verification shines because other ways of increasing our trust in software either fail or are ineffective.
+# ]
+   - CPU, hardware, controllers.
+   - Protocols:
+     - Cache coherence in distributed systems.
+     - Analysis of network exchange protocols.
+   - Distributed algorithms:
+     - Consensus for distributed DB.
+     - Cloud technologies (Amazon Web Services).
+     - DHT algorithms (torrents).
+   - Very robust systems:
+     - Airplanes, rockets, space industry...
+     - Power plants, engines...
+     - Medicine, life-support systems...
+
+   -----
+
+** Model Checking: keywords 
+# [
+If you got interested in model checking, feel free to do research on the following keywords:
+# ]
+
+   - Temporal logic: CTL*, CLT, LTL, TLA+
+   - Binary decision diagrams: ROBDD
+   - Kinds of model checking:
+     - Explicit model-checking
+     - Symbolic model-checking (NuSMV is symbolic)
+     - Probabilistic model-checking
+     - Model-finding
+   - Mu-calculus
+   - Model theory (mathematical logic)
+
+   -----
+
+
+* Conclusion
+  :PROPERTIES:
+  :UNNUMBERED: notoc
+  :END:
+  # <
+- Interpreters
+- Models of computation
+  - FSM
+  - Transition system
+- Determinism/non-determinism
+- Undefined behavior/totality
+- Model checking examples
+  # >
+# [
+  In this part we have studied examples of deterministic and non-deterministic finite state machines and transition systems.
+  We have learned that if the system is easy to describe as a FSM then we should absolutely do it, and then we can encode this FSM on a target language with little effort.
+  We have observed the differences between deterministic and non-deterministic behavior and provided some examples from more conventional programming languages.
+ We have been exposed to the concepts of undefined behavior and totality, learned how to make any finite state machine total.
+ Finally, we have glimpsed at how limiting the expressive power of a model of computation can bring us great benefits: designing a program as a transition system and verifying its properties formally allows us to construct robust systems with guaranteed properties.
+
+ In the next part we will study more models of computation including Intel 64/AMD64 computers and start programming in assembly.
+  # ]
