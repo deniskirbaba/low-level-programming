@@ -1,3 +1,4 @@
 # Low-level programming course
 
-This repository contains labs, notes, and materials for the C programming course on Stepik platform https://stepik.org/course/73618/.
+This repository contains labs, notes, and materials for the low-level programming course. 
+ * C-language course at Stepik platform https://stepik.org/course/73618/
