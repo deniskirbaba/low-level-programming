@@ -6,7 +6,6 @@ import sys
 import re
 import sys
 from subprocess import CalledProcessError, Popen, PIPE
-from termcolor import colored
 
 #-------helpers---------------
 
@@ -466,15 +465,15 @@ if __name__ == "__main__":
                     print ('          testing', t.name,'on "'+ arg +'"')
                     res = t.perform(arg)
                     if res: 
-                        print ('  [', colored('  ok  ', 'green'), ']')
+                        print ('  [','  ok  ', 'green', ']')
                     else:
-                        print ('* [ ', colored('fail', 'red'),  ']')
+                        print ('* [ ', 'fail', 'red',  ']')
                         found_error = True
                 except:
-                    print ('* [ ', colored('fail', 'red'),  '] with exception' , sys.exc_info()[0])
+                    print ('* [ ', 'fail', 'red',  '] with exception' , sys.exc_info()[0])
                     raise
                     found_error = True
     if found_error:
         sys.exit('Not all tests have been passed')
     else:
-        print (colored( "Good work, all tests are passed", 'green'))
+        print ("Good work, all tests are passed", 'green')

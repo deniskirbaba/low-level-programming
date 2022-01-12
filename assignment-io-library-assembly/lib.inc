@@ -1,14 +1,36 @@
 section .text
 
+
 ; Принимает код возврата и завершает текущий процесс
-exit: 
-    xor rax, rax,
-    ret 
+exit:
+    mov rax, 60                     ; 'exit' syscall number
+    syscall
+
 
 ; Принимает указатель на нуль-терминированную строку, возвращает её длину
 string_length:
-    xor rax, rax
-    ret
+                                    ; by our convention, first and the only argument
+                                    ; is taken from rdi
+    xor rax, rax                    ; rax will hold string length. If it is not
+                                    ; zeroed first, its value will be totally random
+    
+    .loop:                          ; main loop starts here
+        cmp byte [rdi+rax], 0       ; Check if the current symbol is null-terminator.
+                                    ; We absolutely need that 'byte' modifier since
+                                    ; the left and the right part of cmp should be
+                                    ; of the same size. Right operand is immediate
+                                    ; and holds no information about its size,
+                                    ; hence we don't know how many bytes should be
+                                    ; taken from memory and compared to zero
+        je .end                     ; Jump if we found null-terminator
+
+        inc rax                     ; Otherwise go to next symbol and increase
+                                    ; counter
+        jmp .loop
+
+    .end:
+        ret                         ; When we hit 'ret', rax should hold return value
+
 
 ; Принимает указатель на нуль-терминированную строку, выводит её в stdout
 print_string:
