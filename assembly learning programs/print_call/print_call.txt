@@ -1,0 +1,7 @@
+how to compile:
+> nasm -felf64 print_call.asm -o print_call.o
+> ld -o print_call print_call.o
+> chmod u+x print_call
+
+how to run:
+> ./print_call

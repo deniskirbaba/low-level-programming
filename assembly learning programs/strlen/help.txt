@@ -1,0 +1,7 @@
+how to compile:
+> nasm -felf64 strlen.asm -o strlen.o
+> ld -o strlen strlen.o
+> chmod u+x strlen
+
+how to run:
+> ./strlen

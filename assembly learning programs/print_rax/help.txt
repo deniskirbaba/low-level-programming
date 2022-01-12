@@ -1,0 +1,7 @@
+how to compile:
+> nasm -felf64 print_rax.asm -o print_rax.o
+> ld -o print_rax print_rax.o
+> chmod u+x print_rax
+
+how to run:
+> ./print_rax

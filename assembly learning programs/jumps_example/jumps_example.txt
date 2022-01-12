@@ -1,0 +1,7 @@
+how to compile:
+> nasm -felf64 jumps_example.asm -o jumps_example.o
+> ld -o jumps_example jumps_example.o
+> chmod u+x jumps_example
+
+how to run:
+> ./jumps_example

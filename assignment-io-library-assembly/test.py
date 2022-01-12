@@ -47,10 +47,10 @@ def compile( fname, text ):
     subprocess.call( ['nasm', '--version'] )
 
     if subprocess.call( ['nasm', '-f', 'elf64', fname + '.asm', '-o', fname+'.o'] ) == 0 and subprocess.call( ['ld', '-o' , fname, fname+'.o'] ) == 0:
-             print ' ', fname, ': compiled'
+             print (' ', fname, ': compiled')
              return True
     else: 
-        print ' ', fname, ': failed to compile'
+        print (' ', fname, ': failed to compile')
         return False
 
 
@@ -90,7 +90,7 @@ class Test:
         if res is None:
             return False
         (output, code) = res
-        print '"', arg,'" ->',  res
+        print ('"', arg,'" ->',  res)
         return self.checker( arg, output, code )
 
 before_call="""
@@ -463,18 +463,18 @@ if __name__ == "__main__":
         for arg in inputs[t.name]:
             if not found_error:
                 try:
-                    print '          testing', t.name,'on "'+ arg +'"'
+                    print ('          testing', t.name,'on "'+ arg +'"')
                     res = t.perform(arg)
                     if res: 
-                        print '  [', colored('  ok  ', 'green'), ']'
+                        print ('  [', colored('  ok  ', 'green'), ']')
                     else:
-                        print '* [ ', colored('fail', 'red'),  ']'
+                        print ('* [ ', colored('fail', 'red'),  ']')
                         found_error = True
                 except:
-                    print '* [ ', colored('fail', 'red'),  '] with exception' , sys.exc_info()[0]
+                    print ('* [ ', colored('fail', 'red'),  '] with exception' , sys.exc_info()[0])
                     raise
                     found_error = True
     if found_error:
         sys.exit('Not all tests have been passed')
     else:
-        print colored( "Good work, all tests are passed", 'green')
+        print (colored( "Good work, all tests are passed", 'green'))
