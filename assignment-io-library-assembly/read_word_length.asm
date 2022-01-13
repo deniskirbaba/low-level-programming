@@ -1,8 +1,9 @@
-section .data
-        str: db '', 0
+
+        section .data
+        word_buf: times 20 db 0xca
         section .text
         %include "lib.inc"
-        global _start
+        global _start 
         _start:
         
 mov rdi, -1
@@ -21,8 +22,9 @@ push r13
 push r14 
 push r15 
 
-        mov rdi, str
-        call string_length
+        mov rdi, word_buf
+        mov rsi, 20 
+        call read_word
         
 cmp r15, [rsp] 
 jne .convention_error
@@ -60,6 +62,7 @@ err_calling_convention: db "You did not respect the calling convention! Check th
 section .text
 continue:
 
-        mov rdi, rax
+
         mov rax, 60
+        mov rdi, rdx
         syscall

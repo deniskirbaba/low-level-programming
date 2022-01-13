@@ -1,8 +1,6 @@
-section .data
-        str: db '', 0
-        section .text
+section .text
         %include "lib.inc"
-        global _start
+        global _start 
         _start:
         
 mov rdi, -1
@@ -21,8 +19,7 @@ push r13
 push r14 
 push r15 
 
-        mov rdi, str
-        call string_length
+        call read_char
         
 cmp r15, [rsp] 
 jne .convention_error

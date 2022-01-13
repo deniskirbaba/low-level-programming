@@ -1,8 +1,8 @@
 section .data
-        str: db '', 0
+        input: db '1', 0
         section .text
         %include "lib.inc"
-        global _start
+        global _start 
         _start:
         
 mov rdi, -1
@@ -21,8 +21,8 @@ push r13
 push r14 
 push r15 
 
-        mov rdi, str
-        call string_length
+        mov rdi, input
+        call parse_uint
         
 cmp r15, [rsp] 
 jne .convention_error
@@ -60,6 +60,9 @@ err_calling_convention: db "You did not respect the calling convention! Check th
 section .text
 continue:
 
+        push rdx
         mov rdi, rax
+        call print_uint
         mov rax, 60
+        pop rdi
         syscall

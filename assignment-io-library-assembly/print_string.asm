@@ -2,7 +2,7 @@ section .data
         str: db '', 0
         section .text
         %include "lib.inc"
-        global _start
+        global _start 
         _start:
         
 mov rdi, -1
@@ -22,7 +22,7 @@ push r14
 push r15 
 
         mov rdi, str
-        call string_length
+        call print_string
         
 cmp r15, [rsp] 
 jne .convention_error
@@ -60,6 +60,7 @@ err_calling_convention: db "You did not respect the calling convention! Check th
 section .text
 continue:
 
-        mov rdi, rax
+
         mov rax, 60
+        xor rdi, rdi
         syscall
