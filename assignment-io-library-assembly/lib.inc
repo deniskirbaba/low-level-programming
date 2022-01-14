@@ -9,38 +9,32 @@ exit:
 
 ; Принимает указатель на нуль-терминированную строку, возвращает её длину
 string_length:
-                                    ; by our convention, first and the only argument
-                                    ; is taken from rdi
-    xor rax, rax                    ; rax will hold string length. If it is not
-                                    ; zeroed first, its value will be totally random
+                                    ; rdi - string pointer
+
+    xor rax, rax                    ; rax will hold string length
     
     .loop:                          ; main loop starts here
-        cmp byte [rdi+rax], 0       ; Check if the current symbol is null-terminator.
-                                    ; We absolutely need that 'byte' modifier since
-                                    ; the left and the right part of cmp should be
-                                    ; of the same size. Right operand is immediate
-                                    ; and holds no information about its size,
-                                    ; hence we don't know how many bytes should be
-                                    ; taken from memory and compared to zero
+        cmp byte [rdi+rax], 0       ; Check if the current symbol is null-terminator
+
         je .end                     ; Jump if we found null-terminator
 
         inc rax                     ; Otherwise go to next symbol and increase counter
         jmp .loop
 
     .end:
-        ret                         ; When we hit 'ret', rax should hold return value
+        ret
 
 
 ; Принимает указатель на нуль-терминированную строку, выводит её в stdout
 print_string:
-	call string_length				; find length of our string
+	call string_length              ; find length of our string
 
-    mov rsi, rdi					; where do we take data from
-    mov rdx, rax					; the amount of bytes to write
-    mov rax, 1						; 'write' syscall identifier
-    mov rdi, 1						; stdout file descriptor
+    mov rsi, rdi                    ; where do we take data from
+    mov rdx, rax                    ; the amount of bytes to write
+    mov rax, 1                      ; 'write' syscall identifier
+    mov rdi, 1                      ; stdout file descriptor
 
-    syscall							; printing string
+    syscall                         ; printing string
     ret
 
 
@@ -55,7 +49,7 @@ print_char:
 
 ; Переводит строку (выводит символ с кодом 0xA)
 print_newline:
-    mov rdi, 0xA					; 0xA = '\n' = newline
+    mov rdi, 0xA                    ; 0xA = '\n' = newline
     jmp print_char
 
 
@@ -63,17 +57,17 @@ print_newline:
 ; Совет: выделите место в стеке и храните там результаты деления
 ; Не забудьте перевести цифры в их ASCII коды.
 print_uint:
-    mov r8, rsp						; save the stack
-	mov r9, 10						; the base of ns
+    mov r8, rsp                     ; save the stack
+	mov r9, 10                      ; the base of ns
 	mov rax, rdi
 	push 0
 
 	.loop:
-		xor rdx, rdx				; clear
-		div r9						; unsigned division
+		xor rdx, rdx                ; clear
+		div r9                      ; unsigned division
 		add rdx, '0'	
 		dec rsp		
-		mov byte[rsp], dl			; put the number in stack
+		mov byte[rsp], dl           ; put the number in stack
 		cmp rax, 0			
 		jnz .loop
 	
@@ -88,7 +82,7 @@ print_uint:
 
 ; Выводит знаковое 8-байтовое число в десятичном формате 
 print_int:
-    cmp rdi, 0						; sign checking
+    cmp rdi, 0                      ; sign checking
     jl .if_negative
     call print_uint
 
@@ -100,38 +94,39 @@ print_int:
         call print_char
         pop rdi
         neg rdi
-        call print_uint
-
-        ret
+        
+        jmp print_uint
 
 
 ; Принимает два указателя на нуль-терминированные строки, возвращает 1 если они равны, 0 иначе
 string_equals:
     .loop:
-		mov al, [rsi]
-		cmp al, [rdi]
+		mov al, byte[rsi]
+		cmp al, byte[rdi]
+
 		jne .not_equal
 		inc rdi
 		inc rsi
 		test al, al
 		jnz .loop
-		mov eax, 1					; resetting the register
+		mov eax, 1                  ; resetting the register
 
 		ret
 
 	.not_equal:
-		xor rax, rax				; resetting the register
+		xor rax, rax                ; resetting the register
 
 		ret
 
 
 ; Читает один символ из stdin и возвращает его. Возвращает 0 если достигнут конец потока
 read_char:
-	xor rax, rax					; resetting the register
-    push rax
-    mov rdi, 0						; stdin file descriptor
-    mov rsi, rsp					; where do we store data in
-    mov rdx, 1						; the amount of bytes to read
+	xor rax, rax                    ; resetting the register
+	push 0
+
+    mov rdi, 0                      ; stdin file descriptor
+    mov rsi, rsp                    ; where do we store data in
+    mov rdx, 1                      ; the amount of bytes to read
     syscall
 
     pop rax
@@ -148,16 +143,16 @@ read_char:
 ; Эта функция должна дописывать к слову нуль-терминатор
 
 read_word:
-    								;rdi - buffer pointer
-									;rsi - buffer size
+                                    ;rdi - buffer pointer
+                                    ;rsi - buffer size
 	
-	xor rdx, rdx					; resetting the register
+	xor rdx, rdx                    ; resetting the register
 
-    .loop:							; main loop
-        cmp rdx, rsi 				; if buff sz = 0
+    .loop:                          ; main loop
+        cmp rdx, rsi                ; if buff sz = 0
         je .error
         							
-        							; read next char
+                                    ; read next char
     	push rdx
     	push rdi
     	push rsi
@@ -168,32 +163,32 @@ read_word:
         pop rdi
         pop rdx
        								
-       								; check for ' ', '\t', '\n'
-        cmp rax, 0x20				; 0x20 = ' ' = whitespace				
+                                    ; check for ' ', '\t', '\n'
+        cmp rax, 0x20               ; 0x20 = ' ' = whitespace				
         je .skipping_whitespace
-        cmp rax, 0x9				; 0x9 = '\t' = tabulation
+        cmp rax, 0x9                ; 0x9 = '\t' = tabulation
         je .skipping_whitespace
-        cmp rax, 0xA				; 0xA = '\n' = newline
+        cmp rax, 0xA                ; 0xA = '\n' = newline
         je .skipping_whitespace
 
-        							; check for end of string
+                                    ; check for end of string
         cmp rax, 0
         je .end_of_string
         
-        mov byte[rdi+rdx], al 		; adding symbol
+        mov byte[rdi+rdx], al       ; adding symbol
         
         inc rdx
-        jmp .loop					; next iteration
+        jmp .loop                   ; next iteration
         
-    .error: 						; error case
+    .error:                         ; error case
     	xor rax, rax
     	ret
 
-    .skipping_whitespace:			; whitespaces case
+    .skipping_whitespace:           ; whitespaces case
     	test rdx, rdx
     	je .loop
 
-    .end_of_string:					; successfull ending
+    .end_of_string:                 ; successfull ending
     	mov rax, rdi
     	mov byte[rdi+rdx], 0
     	ret
@@ -204,28 +199,29 @@ read_word:
 ; Возвращает в rax: число, rdx : его длину в символах
 ; rdx = 0 если число прочитать не удалось
 parse_uint:
-									; rdi - string pointer
+                                    ; rdi - string pointer
 
-    xor rax, rax					; resetting register
+    xor rax, rax                    ; resetting register
     xor rdx, rdx                    ; resetting register
-    xor rcx, rcx					; resetting register
+    xor rcx, rcx                    ; resetting register
 
     .loop:                          ; main loop
-        mov cl, byte [rdi + rdx]
+        mov dl, byte [rdi + rcx]
 
-        cmp cl, '9'
+        cmp dl, '9'
         jg .exit
-        cmp cl, '0'
+        cmp dl, '0'
         jl .exit
 
-        sub cl, '0'
+        sub dl, '0'
         imul rax, 10 
-        add rax, rcx
-        inc rdx
+        add rax, rdx
+        inc rcx
 
         jmp .loop
 
     .exit:
+    	mov rdx, rcx
         ret
 
 
@@ -235,17 +231,17 @@ parse_uint:
 ; Возвращает в rax: число, rdx : его длину в символах (включая знак, если он был) 
 ; rdx = 0 если число прочитать не удалось
 parse_int:
-									; rdi - string pointer
+                                    ; rdi - string pointer
 									
-    xor rax, rax					; resetting register
-    xor rdx, rdx					; resetting register
+    xor rax, rax                    ; resetting register
+    xor rdx, rdx                    ; resetting register
 
     cmp byte[rdi], '-'
 
-    								; negative number case
+                                    ; negative number case
     jne parse_uint
 
-    								; to all numbers
+                                    ; to all numbers
   	inc rdi
     call parse_uint
     neg rax
@@ -258,42 +254,42 @@ parse_int:
 ; Копирует строку в буфер
 ; Возвращает длину строки если она умещается в буфер, иначе 0
 string_copy:
-    								; rdi - string pointer
-									; rsi - buffer pointer
-									; rdx - buffer size
+                                    ; rdi - string pointer
+                                    ; rsi - buffer pointer
+                                    ; rdx - buffer size
 	
-	xor rax, rax					; resetting register
+	xor rax, rax                    ; resetting register
 
-									; saving params
+                                    ; saving params
     push rdi						
     push rsi
     push rdx
 
     call string_length
 
-    								; restoring params
+                                    ; restoring params
     pop rdx
     pop rsi
     pop rdi
 
-    inc rax							; accounting for the null terminator
+    inc rax                         ; accounting for the null terminator
     
-    cmp rax, rdx					; check for buffer capacity
+    cmp rax, rdx                    ; check for buffer capacity
     ja .buffer_capacity_error
     
-    xor ecx, ecx
+    xor rcx, rcx
 
-	.loop:							; main loop - string copy
-    	mov r8b, [rdi + rcx]
+	.loop:                          ; main loop - string copy
+    	mov r8b, byte[rdi + rcx]
     	mov [rsi + rcx], r8b
     	inc rcx
     	cmp rcx, rax
     	jb .loop
 
-	.exit:							; successfull exit from func
+	.exit:                          ; successfull exit from func
     	dec rax
     	ret
 	
-	.buffer_capacity_error:			; buffer capacity is not enough
-    	xor eax, eax        
+	.buffer_capacity_error:         ; buffer capacity is not enough
+    	xor rax, rax        
     	ret
