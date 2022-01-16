@@ -1,7 +1,7 @@
 #include "../include/file.h"
 #include <errno.h>
 
-enum file_status file_open(FILE** file, const char* filename, const char* mode) {
+enum file_status file_open(FILE** file, char* const filename, char* const mode) {
     *file = fopen(filename, mode);
 
     if (*file != NULL) return FILE_SUCCESS;
@@ -21,7 +21,7 @@ enum file_status file_close(FILE** file){
     return FILE_NOT_EXIST;
 }
 
-void file_print_status(enum file_status status, char* filename) {
+void file_print_status(enum file_status status, char* const filename) {
     switch (status) {
         case FILE_NOT_EXIST:
             fprintf(stderr, "File <%s> doesn't exists", filename);

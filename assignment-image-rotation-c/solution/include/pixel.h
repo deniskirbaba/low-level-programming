@@ -5,7 +5,9 @@
 #include <stdint.h>
 #include <stdio.h>
 
-struct pixel {uint8_t b, g, r;};
+struct __attribute__((packed)) pixel {
+    uint8_t blue, green, red;
+};
 
 struct pixel* pixel_alloc_array(size_t size);
 

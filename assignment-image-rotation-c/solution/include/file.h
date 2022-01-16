@@ -11,9 +11,9 @@ enum file_status {
     FILE_SUCCESS
 };
 
-void file_print_status(enum file_status status, char* filename);
+void file_print_status(enum file_status status, char* const filename);
 
-enum file_status file_open(FILE** file, const char* filename, const char* mode);
+enum file_status file_open(FILE** file, char* const filename, char* const mode);
 enum file_status file_close(FILE** file);
 
 #endif
